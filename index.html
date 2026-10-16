@@ -485,7 +485,7 @@ function blobToDataUrl(b){return new Promise((r,j)=>{const f=new FileReader();f.
 async function cloudPushInvoice(id){
   dmark('inv',id);if(!sbUser){cloudUI();return false}
   const d=loadStore()[id];if(!d){dclear('inv',id);return true}
-  try{const {error}=await sb.from('invoices').upsert({user_id:sbUser.id,invoice_no:id,data:d,saved_at:d.savedAt||Date.now()},{onConflict:'user_id,invoice_no'});if(error)throw error;
+  try{const {error}=await sb.from('rumusku_invoices').upsert({user_id:sbUser.id,invoice_no:id,data:d,saved_at:d.savedAt||Date.now()},{onConflict:'user_id,invoice_no'});if(error)throw error;
     dclear('inv',id);const k=kget();k.add(id);kset(k);window.cloudIds.add(id);cloudUI();renderSaved();return true}
   catch(e){cloudErr('simpan invoice',e);return false}
 }
@@ -495,21 +495,21 @@ async function cloudPushPhoto(id){
   if(!(await cloudPushInvoice(id)))return false;
   try{const path=fotoPath(id);
     const up=await sb.storage.from(SB_BUCKET).upload(path,await dataUrlToBlob(f.img),{upsert:true,contentType:'image/jpeg'});if(up.error)throw up.error;
-    const {error}=await sb.from('invoices').update({foto_path:path,thumb:f.thumb||null}).eq('invoice_no',id);if(error)throw error;
+    const {error}=await sb.from('rumusku_invoices').update({foto_path:path,thumb:f.thumb||null}).eq('invoice_no',id);if(error)throw error;
     f.path=path;await phSet(id,f);dclear('foto',id);cloudUI();renderSaved();return true}
   catch(e){cloudErr('unggah foto',e);return false}
 }
 async function cloudRemovePhoto(id){
   dclear('foto',id);dmark('fdel',id);if(!sbUser){cloudUI();return false}
   try{await sb.storage.from(SB_BUCKET).remove([fotoPath(id)]);
-    const {error}=await sb.from('invoices').update({foto_path:null,thumb:null}).eq('invoice_no',id);if(error)throw error;dclear('fdel',id);cloudUI();return true}
+    const {error}=await sb.from('rumusku_invoices').update({foto_path:null,thumb:null}).eq('invoice_no',id);if(error)throw error;dclear('fdel',id);cloudUI();return true}
   catch(e){cloudErr('hapus foto',e);return false}
 }
 async function cloudDelete(id){
   dclear('inv',id);dclear('foto',id);dclear('fdel',id);dmark('del',id);const k=kget();k.delete(id);kset(k);window.cloudIds.delete(id);
   if(!sbUser){cloudUI();return false}
   try{await sb.storage.from(SB_BUCKET).remove([fotoPath(id)]);
-    const {error}=await sb.from('invoices').delete().eq('invoice_no',id);if(error)throw error;dclear('del',id);cloudUI();return true}
+    const {error}=await sb.from('rumusku_invoices').delete().eq('invoice_no',id);if(error)throw error;dclear('del',id);cloudUI();return true}
   catch(e){cloudErr('hapus invoice',e);return false}
 }
 async function flushDirty(){
@@ -534,14 +534,14 @@ async function cloudPull(){
   if(!sbUser||pulling)return null;pulling=true;cloudUI('⏳ Menyinkronkan...');let res=null;
   try{
     await flushDirty();
-    let {data:rows,error}=await sb.from('invoices').select(SEL);if(error)throw error;
+    let {data:rows,error}=await sb.from('rumusku_invoices').select(SEL);if(error)throw error;
     const remote=new Set(rows.map(r=>r.invoice_no)),known=kget(),local=loadStore();let pushed=false;
     for(const id of Object.keys(local)){
       if(remote.has(id))continue;
       if(known.has(id)){delete local[id];continue}          // pernah ada di cloud, kini dihapus dari perangkat lain
       if(await cloudPushInvoice(id))pushed=true             // belum pernah terunggah: unggah, jangan dibuang
     }
-    if(pushed){const r2=await sb.from('invoices').select(SEL);if(r2.error)throw r2.error;rows=r2.data}
+    if(pushed){const r2=await sb.from('rumusku_invoices').select(SEL);if(r2.error)throw r2.error;rows=r2.data}
     const d=dget(),st={},cur=loadStore();
     rows.forEach(r=>{if(!d.del[r.invoice_no])st[r.invoice_no]=Object.assign({},r.data,{savedAt:r.saved_at||(r.data&&r.data.savedAt)||0})});
     Object.keys(d.inv).forEach(id=>{if(cur[id])st[id]=cur[id]});   // perubahan lokal yang masih gagal terunggah tidak ditimpa
@@ -560,6 +560,7 @@ async function cloudPull(){
 async function cloudSyncNow(){
   if(!sb){alert('Cloud tidak tersedia (tidak ada koneksi internet atau pustaka Supabase gagal dimuat).');return}
   if(!sbUser){openLogin();return}
+  while(pulling)await new Promise(r=>setTimeout(r,200));
   lastErr='';const r=await cloudPull(),n=dcount();
   if(r&&!n)alert('✅ Sinkron selesai.\nInvoice di cloud: '+r.invoices+'\nFoto di cloud: '+r.fotos);
   else alert('⚠ Sinkron belum berhasil.\n'+(lastErr||'Periksa koneksi internet.')+'\n\nJika pesannya menyebut tabel/relation/bucket/policy, jalankan dulu script supabase-setup.sql di Supabase SQL Editor.');
