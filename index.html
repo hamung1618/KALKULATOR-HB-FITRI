@@ -50,19 +50,21 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
 .pv-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;color:#fff}.pv-top b{flex:1;min-width:140px}
 .pv-box{flex:1;min-height:0;overflow:auto;text-align:center;padding:0 10px 14px}.pv-box img{max-width:100%;max-height:100%;cursor:zoom-in;background:#fff}.pv-box img.z{max-width:none;max-height:none;width:200%;cursor:zoom-out}
 @media print{.pv{display:none!important}}
-.lg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:70;align-items:center;justify-content:center;padding:16px}.lg.on{display:flex}
-.lg-box{background:var(--panel);border-radius:12px;padding:20px;width:100%;max-width:340px;box-shadow:0 10px 40px #0005}.lg-box h3{margin:0 0 4px}.lg-box p{margin:0 0 12px;color:var(--muted);font-size:13px}
-.lg-box input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;font-size:14px}.lg-err{color:#b42318;font-size:13px;min-height:18px;margin-bottom:8px}
+.lg{position:fixed;inset:0;background:#121821;display:none;z-index:70;align-items:center;justify-content:center;padding:16px}.lg.on{display:flex}
+.pin-wrap{width:100%;max-width:300px;text-align:center;color:#fff;font-family:Arial,Helvetica,sans-serif}.pin-title{font-size:19px;margin-bottom:4px}.pin-sub{color:#8b97a8;font-size:13px;margin-bottom:20px}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:8px}.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid #5aa0ff;transition:background .1s}.pin-dots i.on{background:#5aa0ff}
+.pin-err{color:#ff7b72;font-size:13px;min-height:20px;margin-bottom:12px}.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pin-pad button{height:60px;border-radius:12px;border:1px solid #2a3344;background:#1a2230;color:#fff;font-size:21px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}.pin-pad button:active{background:#2a3850}
+.pin-skip{margin-top:20px;background:none;border:0;color:#8b97a8;cursor:pointer;font-size:13px}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}.shake{animation:shk .3s}
 @media print{.lg{display:none!important}}
 </style>
 <input type="file" id="photoFile" accept="image/*" style="display:none">
 <div class="pv" id="pv"><div class="pv-top"><b id="pvTitle"></b>
 <button class="btn secondary" id="pvChange">📷 Ganti Foto</button><button class="btn danger" id="pvDel">Hapus Foto</button><button class="btn" id="pvClose">Tutup</button></div>
 <div class="pv-box"><img id="pvImg" alt="Foto sumber invoice"></div></div>
-<div class="lg" id="lg"><div class="lg-box"><h3>Masukkan PIN</h3><p>Masuk agar data &amp; foto invoice tersimpan di cloud dan bisa dibuka di perangkat lain.</p>
-<input type="password" id="lgPass" placeholder="PIN" inputmode="numeric" autocomplete="current-password" style="text-align:center;font-size:20px;letter-spacing:6px">
-<div class="lg-err" id="lgErr"></div>
-<div style="display:flex;gap:8px"><button class="btn" id="lgGo" style="flex:1">Masuk</button><button class="btn secondary" id="lgSkip">Nanti</button></div></div></div>
+<div class="lg" id="lg"><div class="pin-wrap"><div class="pin-title">🔒 <b>Masukkan PIN</b></div><div class="pin-sub">Data ini bersifat rahasia</div>
+<div class="pin-dots" id="pinDots"></div><div class="pin-err" id="lgErr"></div><div class="pin-pad" id="pinPad"></div><button class="pin-skip" id="lgSkip">Nanti</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
@@ -73,6 +75,7 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
 <div class="tabbar">
   <button class="tab-btn active" id="tabCalc" onclick="showTab('calc')">Perhitungan</button>
   <button class="tab-btn" id="tabSaved" onclick="showTab('saved')">Data Tersimpan <span id="tabCount"></span></button>
+  <button class="tab-btn" id="cloudBadge" onclick="cloudBadgeClick()" title="Status cloud (klik untuk sinkron / masuk)">☁</button>
   <div class="actions-bar">
       <button class="menu-btn" id="menuToggle" title="Menu" aria-label="Menu">⋮</button>
       <div class="dropdown" id="actionsMenu">
@@ -122,7 +125,7 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
 <section class="panel view-saved" id="savedPanel" style="display:none">
   <div id="cloudBar" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:#eef4ff;border:1px solid #c9dafc;border-radius:8px;padding:8px 12px;margin-bottom:12px">
     <span id="cloudMsg" style="font-size:13px"></span>
-    <span style="display:flex;gap:8px"><button class="btn secondary" id="cloudSync" style="padding:6px 10px;display:none">🔄 Sinkronkan</button><button class="btn" id="cloudLogin" style="padding:6px 10px">Masuk</button><button class="btn secondary" id="cloudLogout" style="padding:6px 10px;display:none">Keluar</button></span>
+    <span style="display:flex;gap:8px"><button class="btn secondary" id="cloudSync" style="padding:6px 10px;display:none">☁ Sinkronkan ke Cloud</button><button class="btn" id="cloudLogin" style="padding:6px 10px">Masuk</button><button class="btn secondary" id="cloudLogout" style="padding:6px 10px;display:none">Keluar</button></span>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
     <strong>Invoice Tersimpan <span id="savedCount" style="color:var(--muted);font-weight:400"></span></strong>
@@ -139,7 +142,7 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
     <thead><tr><th>No. Invoice</th><th>Tanggal</th><th>Customer</th><th>Total Setelah Diskon</th><th>Barang</th><th>Foto Sumber</th><th>Aksi</th></tr></thead>
     <tbody id="savedBody"></tbody>
   </table></div>
-  <p class="notes">Invoice tersimpan di browser ini (otomatis saat impor Excel). Jika No. Invoice sama, data lama ditimpa. Foto sumber invoice (tombol "Tambah") juga disimpan di browser ini dan ikut tersimpan di Backup. Gunakan Backup untuk cadangan atau pindah perangkat.</p>
+  <p class="notes">Invoice tersimpan di browser ini dan, bila sudah masuk (☁), juga di cloud Supabase (otomatis saat impor Excel). Jika No. Invoice sama, data lama ditimpa. Foto sumber invoice (tombol "Tambah") juga ikut tersimpan di cloud bila sudah masuk, dan ikut tersimpan di Backup. Gunakan Backup untuk cadangan atau pindah perangkat.</p>
 </section>
 <section class="panel notes view-calc"><strong>Catatan penggunaan</strong><ol>
 <li>Diskon dibagi ke tiap barang secara proporsional terhadap nilai jumlah masing-masing barang.</li>
@@ -291,8 +294,8 @@ function saveCurrent(notify){
   const d=getState();const id=(d.invoice||'').trim();
   if(!id){alert('Isi No. Invoice dulu agar bisa disimpan.');return false}
   const st=loadStore();const existed=!!st[id];d.savedAt=Date.now();st[id]=d;
-  if(!saveStore(st))return false;renderSaved();cloudPushInvoice(id);
-  if(notify)alert('Invoice '+id+(existed?' diperbarui.':' tersimpan.'));
+  if(!saveStore(st))return false;renderSaved();const pr=cloudPushInvoice(id);
+  if(notify)pr.then(ok=>alert('Invoice '+id+(existed?' diperbarui':' tersimpan')+(ok?' dan sudah masuk ke cloud ☁.':(window.cloudOn?' di perangkat ini, tetapi GAGAL diunggah ke cloud. Tekan "Sinkronkan ke Cloud" di tab Data Tersimpan.':' di perangkat ini SAJA. Masuk dengan PIN (tombol ☁) agar tersimpan di cloud.'))));
   return true;
 }
 function applyImport(d){
@@ -318,7 +321,7 @@ async function renderSaved(){
   const ph=await phAll();if(tk!==savedToken)return;
   document.getElementById('savedBody').innerHTML=ids.length?ids.map(id=>{const d=st[id],f=ph[id];
     const foto=f?`<img class="thumb" src="${f.thumb||f.img}" data-view="${escH(id)}" alt="Foto" title="Klik untuk melihat">`:`<button class="btn secondary" style="padding:6px 10px" data-add="${escH(id)}">📷 Tambah</button>`;
-    return `<tr><td style="text-align:left">${escH(id)}</td><td style="text-align:left">${escH(d.date)}</td><td style="text-align:left">${escH(d.customer)}</td><td>${fmt(netOf(d))}</td><td>${d.items.length}</td><td style="text-align:center">${foto}</td><td><button class="btn" style="padding:6px 10px" data-open="${escH(id)}">Buka</button> <button class="btn danger" style="padding:6px 10px" data-del="${escH(id)}">Hapus</button></td></tr>`}).join('')
+    return `<tr><td style="text-align:left">${escH(id)}${window.cloudOn?(window.cloudIds&&window.cloudIds.has(id)?' <span title="Sudah tersimpan di cloud" style="color:#16a34a">☁✓</span>':' <span title="Belum terunggah ke cloud" style="color:#b42318">☁✗</span>'):''}</td><td style="text-align:left">${escH(d.date)}</td><td style="text-align:left">${escH(d.customer)}</td><td>${fmt(netOf(d))}</td><td>${d.items.length}</td><td style="text-align:center">${foto}</td><td><button class="btn" style="padding:6px 10px" data-open="${escH(id)}">Buka</button> <button class="btn danger" style="padding:6px 10px" data-del="${escH(id)}">Hapus</button></td></tr>`}).join('')
     :'<tr><td colspan="7" style="text-align:center;color:#64748b">Belum ada invoice tersimpan.</td></tr>';
 }
 async function openPhoto(id){
@@ -457,41 +460,68 @@ calculate();
 /* ===== Supabase: login + sinkron data & foto ===== */
 const SB_EMAIL='rumusku@example.com'; // akun tunggal; PIN = password akun ini
 const SB_URL='https://lmcfacakevmribkddgbd.supabase.co',SB_KEY='sb_publishable_z9uA7UerhURPpslDmCgqkA_o1Xwmv0c',SB_BUCKET='foto-invoice';
-let sb=null,sbUser=null,pulling=false,askedLogin=false;
+let sb=null,sbUser=null,pulling=false,askedLogin=false,lastErr='';
+window.cloudIds=new Set();window.cloudOn=false;
 const $=id=>document.getElementById(id);
 const fotoPath=id=>sbUser.id+'/'+id.replace(/[^\w\-]/g,'_')+'.jpg';
+/* antrean perubahan yang belum terunggah (aman dari kegagalan/offline) */
+const jget=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const dget=()=>Object.assign({inv:{},foto:{},del:{},fdel:{}},jget('rumusku_dirty',{}));
+const dsave=d=>localStorage.setItem('rumusku_dirty',JSON.stringify(d));
+function dmark(t,id){const d=dget();d[t][id]=1;dsave(d)}
+function dclear(t,id){const d=dget();delete d[t][id];dsave(d)}
+const dcount=()=>{const d=dget();return Object.keys(d.inv).length+Object.keys(d.foto).length+Object.keys(d.del).length+Object.keys(d.fdel).length};
+const kget=()=>new Set(jget('rumusku_known',[])),kset=s=>localStorage.setItem('rumusku_known',JSON.stringify([...s]));
 function cloudUI(msg){
-  $('cloudMsg').textContent=msg||(sbUser?'☁ Tersinkron ke cloud':(sb?'☁ Belum masuk. Data hanya di perangkat ini.':'☁ Mode offline (cloud tidak tersedia). Data hanya di perangkat ini.'));
+  const n=dcount();window.cloudOn=!!sbUser;
+  $('cloudMsg').textContent=msg||(sbUser?(n?'⚠ '+n+' perubahan belum terunggah ke cloud — tekan "Sinkronkan ke Cloud".':'☁ Tersinkron ke cloud'):(sb?'☁ Belum masuk. Data hanya di perangkat ini.':'☁ Mode offline (cloud tidak tersedia). Data hanya di perangkat ini.'));
   $('cloudLogin').style.display=(!sbUser&&sb)?'':'none';$('cloudLogout').style.display=sbUser?'':'none';$('cloudSync').style.display=sbUser?'':'none';
+  const bd=$('cloudBadge');if(bd){if(sbUser){bd.textContent=n?'☁ !':'☁ ✓';bd.style.color=n?'#b42318':'#16a34a'}else{bd.textContent=sb?'☁ Masuk':'☁ offline';bd.style.color=''}}
 }
-function cloudErr(where,e){console.error(where,e);cloudUI('⚠ Gagal sinkron ('+where+'): '+((e&&e.message)||e)+' — data tetap aman di perangkat ini.')}
+function cloudErr(where,e){lastErr=where+': '+((e&&e.message)||e);console.error(where,e);cloudUI('⚠ Gagal sinkron ('+lastErr+') — data tetap aman di perangkat ini.')}
 async function dataUrlToBlob(u){return await (await fetch(u)).blob()}
 function blobToDataUrl(b){return new Promise((r,j)=>{const f=new FileReader();f.onload=()=>r(f.result);f.onerror=()=>j(f.error);f.readAsDataURL(b)})}
 
 async function cloudPushInvoice(id){
-  if(!sbUser)return;const d=loadStore()[id];if(!d)return;
-  try{const {error}=await sb.from('invoices').upsert({user_id:sbUser.id,invoice_no:id,data:d,saved_at:d.savedAt||Date.now()},{onConflict:'user_id,invoice_no'});
-    if(error)throw error;cloudUI()}catch(e){cloudErr('simpan invoice',e)}
+  dmark('inv',id);if(!sbUser){cloudUI();return false}
+  const d=loadStore()[id];if(!d){dclear('inv',id);return true}
+  try{const {error}=await sb.from('invoices').upsert({user_id:sbUser.id,invoice_no:id,data:d,saved_at:d.savedAt||Date.now()},{onConflict:'user_id,invoice_no'});if(error)throw error;
+    dclear('inv',id);const k=kget();k.add(id);kset(k);window.cloudIds.add(id);cloudUI();renderSaved();return true}
+  catch(e){cloudErr('simpan invoice',e);return false}
 }
 async function cloudPushPhoto(id){
-  if(!sbUser)return;const f=await phGet(id);if(!f||!f.img)return;
-  try{await cloudPushInvoice(id);const path=fotoPath(id);
+  dmark('foto',id);if(!sbUser){cloudUI();return false}
+  const f=await phGet(id);if(!f||!f.img){dclear('foto',id);return true}
+  if(!(await cloudPushInvoice(id)))return false;
+  try{const path=fotoPath(id);
     const up=await sb.storage.from(SB_BUCKET).upload(path,await dataUrlToBlob(f.img),{upsert:true,contentType:'image/jpeg'});if(up.error)throw up.error;
     const {error}=await sb.from('invoices').update({foto_path:path,thumb:f.thumb||null}).eq('invoice_no',id);if(error)throw error;
-    f.path=path;await phSet(id,f);cloudUI()}catch(e){cloudErr('unggah foto',e)}
+    f.path=path;await phSet(id,f);dclear('foto',id);cloudUI();renderSaved();return true}
+  catch(e){cloudErr('unggah foto',e);return false}
 }
 async function cloudRemovePhoto(id){
-  if(!sbUser)return;
+  dclear('foto',id);dmark('fdel',id);if(!sbUser){cloudUI();return false}
   try{await sb.storage.from(SB_BUCKET).remove([fotoPath(id)]);
-    const {error}=await sb.from('invoices').update({foto_path:null,thumb:null}).eq('invoice_no',id);if(error)throw error;cloudUI()}catch(e){cloudErr('hapus foto',e)}
+    const {error}=await sb.from('invoices').update({foto_path:null,thumb:null}).eq('invoice_no',id);if(error)throw error;dclear('fdel',id);cloudUI();return true}
+  catch(e){cloudErr('hapus foto',e);return false}
 }
 async function cloudDelete(id){
-  if(!sbUser)return;
+  dclear('inv',id);dclear('foto',id);dclear('fdel',id);dmark('del',id);const k=kget();k.delete(id);kset(k);window.cloudIds.delete(id);
+  if(!sbUser){cloudUI();return false}
   try{await sb.storage.from(SB_BUCKET).remove([fotoPath(id)]);
-    const {error}=await sb.from('invoices').delete().eq('invoice_no',id);if(error)throw error;cloudUI()}catch(e){cloudErr('hapus invoice',e)}
+    const {error}=await sb.from('invoices').delete().eq('invoice_no',id);if(error)throw error;dclear('del',id);cloudUI();return true}
+  catch(e){cloudErr('hapus invoice',e);return false}
 }
-async function cloudPushAll(){
-  if(!sbUser)return;const st=loadStore();
+async function flushDirty(){
+  const d=dget();
+  for(const id of Object.keys(d.del))await cloudDelete(id);
+  for(const id of Object.keys(d.fdel))await cloudRemovePhoto(id);
+  for(const id of Object.keys(d.inv))await cloudPushInvoice(id);
+  for(const id of Object.keys(d.foto))await cloudPushPhoto(id);
+}
+async function cloudPushAll(){ // dipakai setelah Pulihkan Backup: unggah semua yang dipulihkan
+  if(!sbUser){cloudUI();return}
+  const st=loadStore();
   for(const id of Object.keys(st)){await cloudPushInvoice(id);const f=await phGet(id);if(f&&f.img&&!f.path)await cloudPushPhoto(id)}
 }
 async function cloudFullPhoto(id,f){
@@ -499,43 +529,68 @@ async function cloudFullPhoto(id,f){
   try{cloudUI('⏳ Memuat foto...');const {data,error}=await sb.storage.from(SB_BUCKET).download(f.path);if(error)throw error;
     f.img=await blobToDataUrl(data);await phSet(id,f);cloudUI();return f}catch(e){cloudErr('muat foto',e);return null}
 }
+const SEL='invoice_no,data,saved_at,foto_path,thumb';
 async function cloudPull(){
-  if(!sbUser||pulling)return;pulling=true;cloudUI('⏳ Menyinkronkan...');
+  if(!sbUser||pulling)return null;pulling=true;cloudUI('⏳ Menyinkronkan...');let res=null;
   try{
-    const flag='rumusku_migrated_'+sbUser.id;
-    if(!localStorage.getItem(flag)){ // sekali: unggah data lokal yang belum ada di cloud
-      const {data:ex,error:e0}=await sb.from('invoices').select('invoice_no');if(e0)throw e0;
-      const have=new Set(ex.map(r=>r.invoice_no)),st=loadStore();let n=0;
-      for(const id of Object.keys(st)){if(have.has(id))continue;await cloudPushInvoice(id);const f=await phGet(id);if(f&&f.img)await cloudPushPhoto(id);n++}
-      localStorage.setItem(flag,'1');if(n)alert(n+' invoice dari perangkat ini diunggah ke cloud.');
+    await flushDirty();
+    let {data:rows,error}=await sb.from('invoices').select(SEL);if(error)throw error;
+    const remote=new Set(rows.map(r=>r.invoice_no)),known=kget(),local=loadStore();let pushed=false;
+    for(const id of Object.keys(local)){
+      if(remote.has(id))continue;
+      if(known.has(id)){delete local[id];continue}          // pernah ada di cloud, kini dihapus dari perangkat lain
+      if(await cloudPushInvoice(id))pushed=true             // belum pernah terunggah: unggah, jangan dibuang
     }
-    const {data:rows,error}=await sb.from('invoices').select('invoice_no,data,saved_at,foto_path,thumb');if(error)throw error;
-    const st={};rows.forEach(r=>{st[r.invoice_no]=Object.assign({},r.data,{savedAt:r.saved_at||r.data.savedAt||0})});
+    if(pushed){const r2=await sb.from('invoices').select(SEL);if(r2.error)throw r2.error;rows=r2.data}
+    const d=dget(),st={},cur=loadStore();
+    rows.forEach(r=>{if(!d.del[r.invoice_no])st[r.invoice_no]=Object.assign({},r.data,{savedAt:r.saved_at||(r.data&&r.data.savedAt)||0})});
+    Object.keys(d.inv).forEach(id=>{if(cur[id])st[id]=cur[id]});   // perubahan lokal yang masih gagal terunggah tidak ditimpa
     saveStore(st);
-    const local=await phAll(),ids=new Set(rows.map(r=>r.invoice_no));
-    for(const k of Object.keys(local))if(!ids.has(k))await phDel(k);
-    for(const r of rows){const l=local[r.invoice_no];
-      if(r.foto_path){const same=l&&l.path===r.foto_path;await phSet(r.invoice_no,{thumb:r.thumb||(l&&l.thumb)||null,img:same?l.img:null,path:r.foto_path,at:Date.now()})}
-      else if(l)await phDel(r.invoice_no)}
+    const ids=new Set(rows.map(r=>r.invoice_no));kset(ids);window.cloudIds=new Set(ids);
+    const lp=await phAll();
+    for(const k of Object.keys(lp))if(!ids.has(k))await phDel(k);
+    for(const r of rows){const id=r.invoice_no,l=lp[id];if(d.foto[id]||d.fdel[id])continue;
+      if(r.foto_path){const same=l&&l.path===r.foto_path;await phSet(id,{thumb:r.thumb||(l&&l.thumb)||null,img:same?l.img:null,path:r.foto_path,at:Date.now()})}
+      else if(l){if(l.img&&!l.path)await cloudPushPhoto(id);else await phDel(id)}}
     await renderSaved();cloudUI();
+    res={invoices:rows.length,fotos:rows.filter(r=>r.foto_path).length};
   }catch(e){cloudErr('ambil data',e)}
-  pulling=false;
+  pulling=false;return res;
 }
-function openLogin(){$('lgErr').textContent='';$('lg').classList.add('on');setTimeout(()=>$('lgPass').focus(),50)}
+async function cloudSyncNow(){
+  if(!sb){alert('Cloud tidak tersedia (tidak ada koneksi internet atau pustaka Supabase gagal dimuat).');return}
+  if(!sbUser){openLogin();return}
+  lastErr='';const r=await cloudPull(),n=dcount();
+  if(r&&!n)alert('✅ Sinkron selesai.\nInvoice di cloud: '+r.invoices+'\nFoto di cloud: '+r.fotos);
+  else alert('⚠ Sinkron belum berhasil.\n'+(lastErr||'Periksa koneksi internet.')+'\n\nJika pesannya menyebut tabel/relation/bucket/policy, jalankan dulu script supabase-setup.sql di Supabase SQL Editor.');
+}
+function cloudBadgeClick(){if(!sb)cloudSyncNow();else if(!sbUser)openLogin();else{showTab('saved');cloudSyncNow()}}
+const PIN_LEN=6; // ubah ke 4 jika ingin PIN 4 angka (lihat catatan: password Supabase = PIN+"#rumusku")
+let pin='',pinBusy=false;
+const pinPw=p=>p.length>=6?p:p+'#rumusku';
+function pinDraw(){$('pinDots').innerHTML=Array.from({length:PIN_LEN},(_,i)=>'<i class="'+(i<pin.length?'on':'')+'"></i>').join('')}
+function pinBuild(){$('pinPad').innerHTML=['1','2','3','4','5','6','7','8','9','','0','⌫'].map(k=>k===''?'<span></span>':'<button data-k="'+k+'">'+k+'</button>').join('')}
+function openLogin(){pin='';pinBusy=false;$('lgErr').textContent='';pinDraw();$('lg').classList.add('on')}
 function closeLogin(){$('lg').classList.remove('on')}
-async function doLogin(){
-  const email=SB_EMAIL,password=$('lgPass').value.trim();if(!password){$('lgErr').textContent='Isi PIN.';return}
-  $('lgGo').disabled=true;$('lgErr').textContent='';
-  const {error}=await sb.auth.signInWithPassword({email,password});$('lgGo').disabled=false;
-  if(error){$('lgErr').textContent=error.message==='Invalid login credentials'?'PIN salah.':error.message;return}
-  $('lgPass').value='';closeLogin();
+async function pinKey(k){
+  if(pinBusy)return;
+  if(k==='⌫'){pin=pin.slice(0,-1);pinDraw();return}
+  if(pin.length>=PIN_LEN)return;pin+=k;pinDraw();$('lgErr').textContent='';
+  if(pin.length===PIN_LEN){pinBusy=true;
+    const {error}=await sb.auth.signInWithPassword({email:SB_EMAIL,password:pinPw(pin)});
+    if(error){$('lgErr').textContent=error.message==='Invalid login credentials'?'PIN salah.':error.message;const d=$('pinDots');d.classList.add('shake');setTimeout(()=>d.classList.remove('shake'),350);pin='';pinDraw();pinBusy=false;return}
+    pin='';pinBusy=false;closeLogin()}
 }
+$('pinPad').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)pinKey(b.dataset.k)});
+document.addEventListener('keydown',e=>{if(!$('lg').classList.contains('on'))return;if(/^\d$/.test(e.key))pinKey(e.key);else if(e.key==='Backspace')pinKey('⌫')});
+pinBuild();pinDraw();
 async function doLogout(){
-  if(!confirm('Keluar? Data di perangkat ini akan dibersihkan (data tetap aman di cloud dan muncul lagi saat Anda masuk).'))return;
-  await sb.auth.signOut();saveStore({});for(const k of Object.keys(await phAll()))await phDel(k);renderSaved();
+  const n=dcount();
+  if(!confirm((n?'⚠ Ada '+n+' perubahan yang BELUM terunggah ke cloud dan akan hilang jika keluar. Tekan Batal lalu "Sinkronkan ke Cloud" dulu.\n\n':'')+'Keluar? Data di perangkat ini akan dibersihkan (data tetap aman di cloud dan muncul lagi saat Anda masuk).'))return;
+  await sb.auth.signOut();saveStore({});for(const k of Object.keys(await phAll()))await phDel(k);
+  localStorage.removeItem('rumusku_dirty');localStorage.removeItem('rumusku_known');window.cloudIds=new Set();renderSaved();cloudUI();
 }
-$('lgGo').onclick=doLogin;$('lgPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-$('lgSkip').onclick=closeLogin;$('cloudLogin').onclick=openLogin;$('cloudLogout').onclick=doLogout;$('cloudSync').onclick=async()=>{await cloudPushAll();await cloudPull()};
+$('lgSkip').onclick=closeLogin;$('cloudLogin').onclick=openLogin;$('cloudLogout').onclick=doLogout;$('cloudSync').onclick=cloudSyncNow;
 (function init(){
   if(!window.supabase){cloudUI();return}
   try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){cloudUI();return}
