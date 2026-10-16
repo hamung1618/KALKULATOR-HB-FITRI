@@ -96,7 +96,14 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
 <script>
 const $=i=>document.getElementById(i),body=$('body');
 const fmt=n=>'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID');
-const num=v=>{if(typeof v==='number')return v;return Number(String(v??'').replace(/[^\d-]/g,''))||0};
+const num=v=>{if(typeof v==='number')return isFinite(v)?v:0;
+let s=String(v??'').replace(/[^\d.,-]/g,'');if(!s)return 0;const neg=s.startsWith('-');s=s.replace(/-/g,'');
+const lc=s.lastIndexOf(','),ld=s.lastIndexOf('.');
+if(lc>=0&&ld>=0){const dec=lc>ld?',':'.',th=dec===','?'.':',';s=s.split(th).join('').replace(dec,'.')}
+else if(lc>=0||ld>=0){const p=s.split(lc>=0?',':'.');
+if(p.length>2)s=p.join('');else if(p[1].length===3&&p[0].length>0&&p[0].length<=3&&p[0]!=='0')s=p.join('');else s=p[0]+'.'+p[1]}
+const n=parseFloat(s);return(neg?-1:1)*(isNaN(n)?0:n)};
+const norm=i=>i.addEventListener('change',()=>{i.value=String(num(i.value));calculate()});
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const fd=t=>t?t.split('-').reverse().join('/'):'-';
 const BL=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -107,7 +114,7 @@ const inp=(v,c)=>`<input class="${c} money" inputmode="numeric" value="${esc(v)}
 function addRow(data=['','',0,1,0],skip){
  const tr=document.createElement('tr');
  tr.innerHTML=`<td class="rowno"></td><td>${inp(data[0]||'','code')}</td><td>${inp(data[1]||'','txt')}</td><td>${inp(data[2]||0,'num')}</td><td>${inp(data[3]||1,'num')}</td><td>${inp(data[4]||0,'num')}</td><td class="calc gross">0</td><td class="calc share">0%</td><td class="calc d1">0</td><td class="calc d2">0</td><td class="calc dt">0</td><td class="calc net">0</td><td class="calc box">0</td><td class="calc pcs">0</td><td><button class="btn danger" style="padding:6px 8px" onclick="this.closest('tr').remove();calculate()">Hapus</button></td>`;
- tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calculate));
+ tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calculate));[2,3,4].forEach(k=>norm(tr.querySelectorAll('input')[k]));
  body.appendChild(tr);if(!skip)calculate();
 }
 function rows(){return [...body.querySelectorAll('tr')].map(tr=>{const i=tr.querySelectorAll('input');return{tr,code:i[0].value,desc:i[1].value,qty:num(i[2].value),pack:num(i[3].value),price:num(i[4].value)}})}
@@ -209,7 +216,7 @@ addEventListener('appinstalled',()=>{$('inst').hidden=true;dp=null});
 async function install(){if(dp){dp.prompt();await dp.userChoice;dp=null;$('inst').hidden=true}
 else if(ios)alert("Di iPhone/iPad: ketuk tombol Share (kotak dengan panah ke atas) di Safari, lalu pilih 'Add to Home Screen'.");
 else alert("Buka menu browser (titik tiga), lalu pilih 'Install app' atau 'Add to Home screen'.")}
-Object.values(FM).forEach(i=>$(i).addEventListener('input',calculate));$('q').addEventListener('input',renderList);$('bln').addEventListener('change',renderList);
+Object.values(FM).forEach(i=>$(i).addEventListener('input',calculate));['disc1','disc2','invoiceTotal'].forEach(i=>norm($(i)));$('q').addEventListener('input',renderList);$('bln').addEventListener('change',renderList);
 addEventListener('online',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
 (async()=>{updSrv();await refresh();const s=await kvGet('state');
 if(s&&s.rows&&s.rows.length){curId=s.id&&saved.some(x=>x.id===s.id)?s.id:null;fill(s)}else newInv();
