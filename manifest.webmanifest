@@ -1,0 +1,17 @@
+{
+  "name": "Kalkulator Harga Beli Setelah Diskon",
+  "short_name": "Kalkulator HB",
+  "description": "Hitung harga beli setelah diskon dari invoice",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1f4e78",
+  "theme_color": "#1f4e78",
+  "lang": "id",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

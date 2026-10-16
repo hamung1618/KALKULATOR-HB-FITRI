@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kalkulator Harga Beli Setelah Diskon</title>
+<title>Kalkulator HB Fitri</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f4e78">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kalkulator HB">
+<link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#666d76;--bd:#d5d9df;--ac:#1f4e78;--hl:#e3edf7;--in:#fffbe0;--ok:#1a7f37;--er:#c62828;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171b;--card:#1d2127;--tx:#e8eaed;--mu:#9aa1ab;--bd:#343a42;--ac:#7fb2e5;--hl:#22364a;--in:#2c2a14;--ok:#4cc26b;--er:#ff7b72;color-scheme:dark}}
@@ -57,7 +62,7 @@ tfoot td{background:var(--hl);font-weight:bold}
 <div><label>Total setelah diskon (hitungan)</label><div class="big" id="hs"></div></div>
 <div><label>Selisih dengan total invoice</label><div class="big" id="sl"></div></div>
 </div>
-<p class="note" style="margin-top:10px">Harga invoice dianggap sudah termasuk PPN. Isi diskon sebagai angka positif. Data tersimpan otomatis di browser ini.</p>
+<p class="note" style="margin-top:10px">Harga invoice dianggap sudah termasuk PPN. Isi diskon sebagai angka positif. Data tersimpan otomatis di perangkat ini (IndexedDB) dan bisa dipakai tanpa internet.</p>
 </div>
 </main>
 <script>
@@ -95,10 +100,15 @@ const h=T-d1-d2;$("hs").textContent="Rp "+fm(h,2);
 const it=$("it").value;const s=$("sl");
 if(it===""){s.textContent="-";s.className="big"}else{const x=N(it)-h;s.textContent=fm(x,2)+(Math.abs(x)<1?"  ✓ cocok":"  ✗ cek lagi");s.className="big "+(Math.abs(x)<1?"ok":"er")}
 save()}
-function save(){try{localStorage.setItem("hb",JSON.stringify({f:["sup","no","tgl","d1","d2","it"].map(k=>$(k).value),rows}))}catch(e){}}
+const DB=()=>new Promise((res,rej)=>{const q=indexedDB.open("hb-fitri",1);q.onupgradeneeded=()=>q.result.createObjectStore("kv");q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)});
+async function idbSet(k,v){try{const d=await DB();d.transaction("kv","readwrite").objectStore("kv").put(v,k)}catch(e){}}
+async function idbGet(k){try{const d=await DB();return await new Promise(r=>{const q=d.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})}catch(e){return null}}
+function save(){idbSet("state",{f:["sup","no","tgl","d1","d2","it"].map(k=>$(k).value),rows:rows.map(r=>r.slice())})}
 function copyRes(){const m=$("msg");try{navigator.clipboard.writeText(out).then(()=>m.textContent="Tersalin, tinggal tempel di Excel.",()=>m.textContent="Gagal menyalin.")}catch(e){m.textContent="Gagal menyalin."}}
 function toggleTheme(){const r=document.documentElement,d=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme:dark)").matches);r.setAttribute("data-theme",d?"light":"dark")}
 ["sup","no","tgl","d1","d2","it"].forEach(k=>$(k).addEventListener("input",calc));
-let s=null;try{s=JSON.parse(localStorage.getItem("hb"))}catch(e){}
+(async()=>{const s=await idbGet("state");
 if(s&&s.rows&&s.rows.length){["sup","no","tgl","d1","d2","it"].forEach((k,i)=>$(k).value=s.f[i]);rows=s.rows;draw()}else load(2);
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});})();
 </script></body></html>
