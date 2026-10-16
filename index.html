@@ -86,7 +86,7 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
         <button onclick="window.print();closeMenu()">🖨 Cetak / Simpan PDF</button>
         <button onclick="exportCurrentXLSX();closeMenu()">📊 Ekspor Excel (.xlsx)</button>
         <button onclick="downloadCSV();closeMenu()">⬇ Ekspor CSV</button>
-        <button class="danger-item" onclick="resetItems();closeMenu()">Reset Barang</button>
+        <button class="danger-item" onclick="resetItems();closeMenu()">Kosongkan Semua</button>
       </div>
     </div>
 </div>
@@ -191,7 +191,12 @@ function calculate(){
  document.getElementById('diffLabel').textContent=invoiceTotal===0?'Isi total invoice untuk pengecekan.':diff===0?'Cocok — tidak ada selisih.':(diff>0?'Total invoice lebih besar ':'Total invoice lebih kecil ')+fmt(Math.abs(diff))+'.';
  renderPriceCards();
 }
-function resetItems(){if(confirm('Hapus semua barang dari tabel?')){body.innerHTML='';calculate()}}
+function resetItems(){
+  if(!confirm('Kosongkan SEMUA isian (supplier, customer, no. invoice, tanggal, diskon, total invoice, dan semua barang)?\n\nInvoice yang sudah disimpan di Data Tersimpan tidak ikut terhapus.'))return;
+  ['supplier','customer','invoice','date','disc1','disc2','invoiceTotal'].forEach(id=>{document.getElementById(id).value=''});
+  body.innerHTML='';calculate();
+  const f=document.getElementById('invoice');if(f)f.focus();
+}
 function downloadCSV(){
  const headers=['No','Kode Barang','Deskripsi','Qty (Boks)','Isi per Boks (pcs)','Harga/Boks (Rp)','Jumlah (Rp)','Porsi dari Total','Alokasi Diskon 1','Alokasi Diskon 2','Total Diskon','Jumlah Setelah Diskon','Harga Beli/Boks Setelah Diskon','Harga Beli/pcs Setelah Diskon'];
  const data=[headers,...rows().map((r,i)=>{let gross=r.qty*r.price,share=rows().reduce((s,x)=>s+x.qty*x.price,0)?gross/rows().reduce((s,x)=>s+x.qty*x.price,0):0;let a1=Math.round(share*num(document.getElementById('disc1').value)),a2=Math.round(share*num(document.getElementById('disc2').value)),net=gross-a1-a2;return [i+1,r.code,r.desc,r.qty,r.pack,r.price,gross,share,a1,a2,a1+a2,net,r.qty?net/r.qty:0,(r.qty&&r.pack)?net/r.qty/r.pack:0]})];
