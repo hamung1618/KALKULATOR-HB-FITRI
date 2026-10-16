@@ -11,218 +11,393 @@
 <link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
 :root{--bg:#f4f6f9;--panel:#fff;--text:#172033;--muted:#64748b;--line:#d9e0ea;--blue:#155eef;--yellow:#fff2a8;--green:#e8f7ee;--red:#fdecec}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Arial,Helvetica,sans-serif;padding-bottom:env(safe-area-inset-bottom,0px)}
-header{background:#163b65;color:#fff;padding:20px 24px;padding-top:calc(20px + env(safe-area-inset-top,0px))}header h1{margin:0 0 5px;font-size:22px}header p{margin:0;color:#d9e8f8}
-.hrow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.hbtn{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.chip{background:#ffffff26;padding:6px 11px;border-radius:999px;font-size:12px}
-main{max-width:1500px;margin:18px auto;padding:0 16px 30px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:15px;box-shadow:0 2px 8px #1522380a}
-.meta{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700}.field input,.field select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:#172033;font:inherit}
-.discount{display:flex;gap:14px;flex-wrap:wrap;align-items:end}.discount .field{width:min(260px,100%)}.manual{background:var(--yellow)!important;color:#0645ad!important;font-weight:700}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;align-items:center}.btn{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;background:#155eef;color:#fff;font:inherit;font-weight:700}.btn.secondary{background:#e7edf5;color:#172033}.btn.danger{background:#b42318}.btn.green{background:#067647}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Arial,Helvetica,sans-serif}
+header{background:#163b65;color:#fff;padding:6px 24px}header p{margin:0;color:#d9e8f8;font-size:12px}
+main{max-width:1500px;margin:18px auto;padding:0 16px 30px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:15px;box-shadow:0 2px 8px #1522380a}.panel.meta-panel{background:transparent;border:0;box-shadow:none;padding:8px 0;margin-bottom:8px}
+.meta{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700}.field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:#172033}
+.discount-row{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.discount{display:flex;gap:14px;flex-wrap:wrap;align-items:end;flex:1}.discount .field{width:min(260px,100%)}
+.actions-bar{margin:0!important;flex-shrink:0;padding-bottom:2px}.manual{background:var(--yellow)!important;color:#0645ad!important;font-weight:700}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.btn{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;background:#155eef;color:#fff}.btn.secondary{background:#e7edf5;color:#172033}.btn.danger{background:#b42318}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td{padding:8px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);text-align:right;white-space:nowrap}th{background:#eaf0f8;color:#20344d;font-size:12px;position:sticky;top:0;z-index:1}th:nth-child(-n+3),td:nth-child(-n+3){text-align:left}td input{width:100%;min-width:70px;border:1px solid #d4dce8;border-radius:5px;padding:7px;text-align:inherit}td .txt{min-width:170px;text-align:left}td .code{min-width:110px;text-align:left}td .num{min-width:78px}.calc{background:#f7f9fc;font-variant-numeric:tabular-nums}.total-row{background:#edf4ff;font-weight:700}.summary{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:12px}.metric{padding:14px;border:1px solid var(--line);border-radius:9px;background:#fbfcfe}.metric small{display:block;color:var(--muted);margin-bottom:5px}.metric strong{font-size:19px;font-variant-numeric:tabular-nums}.metric.good{background:var(--green)}.metric.bad{background:var(--red)}.notes{color:#475569;font-size:12px}.notes li{margin:5px 0}
-.ok{color:#067647;font-weight:700}.er{color:#b42318;font-weight:700}
-.it{border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin:8px 0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.it.cur{border-color:var(--blue);background:#eef4ff}.it small{display:block;color:var(--muted)}
-@media(max-width:760px){.meta{grid-template-columns:repeat(2,minmax(130px,1fr))}.summary{grid-template-columns:1fr}.panel{padding:12px}header{padding:16px}.field input{min-width:0}}
-@media print{body{background:#fff}header{background:#fff;color:#111;padding:0 0 12px}header p{color:#333}main{max-width:none;margin:0;padding:0}.panel{box-shadow:none;border:0;padding:8px 0}.actions,.noprint{display:none!important}.table-wrap{overflow:visible}table{min-width:0;font-size:9px}th,td{padding:4px}td input{border:0;padding:0;background:transparent!important}.meta{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.meta{grid-template-columns:repeat(2,minmax(130px,1fr))}.summary{grid-template-columns:1fr}.panel{padding:12px}header{padding:6px 16px}.field input{min-width:0}}
+@media print{body{background:#fff}header{background:#fff;color:#111;padding:0 0 6px}header p{color:#333}main{max-width:none;margin:0;padding:0}.panel{box-shadow:none;border:0;padding:8px 0}.actions{display:none}.table-wrap{overflow:visible}table{min-width:0;font-size:9px}th,td{padding:4px}td input{border:0;padding:0;background:transparent!important}.meta{grid-template-columns:repeat(4,1fr)}}
+
+.price-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:12px 0 4px}
+.price-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:0 1px 4px #1522380a}
+.price-card .pc-code{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:2px}
+.price-card .pc-desc{font-size:12px;color:#334155;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.price-card .pc-label{font-size:11px;color:var(--muted)}
+.price-card .pc-value{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;color:#0f172a}
+.price-card .pc-pcs{font-size:12px;color:#475569;margin-top:4px}
+.actions-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:12px 0;position:relative}
+.menu-btn{border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer;background:#e7edf5;color:#172033;font-size:18px;line-height:1}
+.dropdown{position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px #15223822;min-width:200px;z-index:20;display:none;overflow:hidden}
+.dropdown.open{display:block}
+.dropdown button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:12px 16px;font-size:14px;font-weight:600;color:#172033;cursor:pointer}
+.dropdown button:hover{background:#f1f5f9}
+.dropdown button.danger-item{color:#b42318}
+@media print{#savedPanel{display:none}.price-cards{break-inside:avoid}.actions-bar{display:none}}
+
+
+.tabbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:0 0 10px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.tabbar .actions-bar{margin:0!important;padding:0}
+.tab-btn{border:0;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;background:#e7edf5;color:#172033}
+.tab-btn.active{background:#155eef;color:#fff}
+@media print{.tabbar{display:none}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 </head>
 <body>
-<header><div class="hrow"><div><h1>RUMUSKU-FITRI</h1><p>Perhitungan Harga Beli Setelah Diskon — tersimpan online, bisa dicetak</p></div>
-<div class="hbtn noprint"><span class="chip" id="srv"></span><button class="btn secondary" onclick="setCode()">🔑 Kode edit</button><button class="btn secondary" onclick="sync()">↻ Muat ulang</button><button class="btn" id="inst" hidden onclick="install()">⬇ Pasang Aplikasi</button></div></div></header>
+<header><p>Perhitungan Harga Beli Setelah Diskon — kalkulasi otomatis dan bisa dicetak</p></header>
 <main>
-<section class="panel">
+<div class="tabbar">
+  <button class="tab-btn active" id="tabCalc" onclick="showTab('calc')">Perhitungan</button>
+  <button class="tab-btn" id="tabSaved" onclick="showTab('saved')">Data Tersimpan <span id="tabCount"></span></button>
+  <div class="actions-bar">
+      <button class="menu-btn" id="menuToggle" title="Menu" aria-label="Menu">⋮</button>
+      <div class="dropdown" id="actionsMenu">
+        <button onclick="document.getElementById('xlsFile').click();closeMenu()">📥 Impor dari Excel</button>
+        <button onclick="saveCurrent(true);closeMenu()">💾 Simpan Invoice Ini</button>
+        <button onclick="addRow();closeMenu()">＋ Tambah Barang</button>
+        <button onclick="document.getElementById('invoiceTotal').focus();closeMenu()">Isi Total Invoice</button>
+        <button onclick="window.print();closeMenu()">🖨 Cetak / Simpan PDF</button>
+        <button onclick="exportCurrentXLSX();closeMenu()">📊 Ekspor Excel (.xlsx)</button>
+        <button onclick="downloadCSV();closeMenu()">⬇ Ekspor CSV</button>
+        <button class="danger-item" onclick="resetItems();closeMenu()">Reset Barang</button>
+      </div>
+    </div>
+</div>
+<section class="panel meta-panel view-calc">
   <div class="meta">
-    <div class="field"><label>Supplier</label><input id="supplier"></div>
-    <div class="field"><label>Customer</label><input id="customer"></div>
-    <div class="field"><label>No. Invoice</label><input id="invoice"></div>
-    <div class="field"><label>Tanggal Invoice</label><input id="date" type="date"></div>
-    <div class="field"><label>TOP / Jatuh Tempo</label><input id="top" placeholder="Contoh: 32 hari / 22/05/2026"></div>
+    <div class="field"><label>Supplier</label><input id="supplier" value="PT. Fokus Ritel Indoprima"></div>
+    <div class="field"><label>Customer</label><input id="customer" value="Gajah Mas. CV - Kebumen"></div>
+    <div class="field"><label>No. Invoice</label><input id="invoice" value="IIF20260402426"></div>
+    <div class="field"><label>Tanggal Invoice</label><input id="date" value="20/04/2026"></div>
   </div>
 </section>
-<section class="panel">
-  <div class="discount">
-    <div class="field"><label>Diskon 1 (Rp) — isi manual</label><input id="disc1" class="manual money" inputmode="numeric"></div>
-    <div class="field"><label>Diskon 2 (Rp) — isi manual</label><input id="disc2" class="manual money" inputmode="numeric"></div>
-    <div class="field"><label>Total Diskon</label><input id="discTotal" readonly value="0"></div>
+<section class="panel view-calc">
+  <div class="discount-row">
+    <div class="discount">
+      <div class="field"><label>Diskon 1 (Rp) — isi manual</label><input id="disc1" class="manual money" value="599929" inputmode="numeric"></div>
+      <div class="field"><label>Diskon 2 (Rp) — isi manual</label><input id="disc2" class="manual money" value="8250000" inputmode="numeric"></div>
+      <div class="field"><label>Total Diskon</label><input id="discTotal" readonly value="0"></div>
+    </div>
+    
   </div>
-  <div class="actions">
-    <button class="btn green" onclick="saveInv()">💾 Simpan Invoice</button>
-    <button class="btn secondary" onclick="newInv()">＋ Invoice Baru</button>
-    <span class="chip" style="background:#e7edf5;color:#172033" id="stat"></span>
-  </div>
-  <div class="actions">
-    <button class="btn" onclick="addRow()">＋ Tambah Barang</button>
-    <button class="btn secondary" onclick="document.getElementById('invoiceTotal').focus()">Isi Total Invoice</button>
-    <button class="btn secondary" onclick="window.print()">🖨 Cetak / Simpan PDF</button>
-    <button class="btn secondary" onclick="downloadCSV()">⬇ Ekspor CSV</button>
-    <button class="btn danger" onclick="resetItems()">Reset Barang</button>
-  </div>
-  <div id="msg" class="notes"></div>
+  <input type="file" id="xlsFile" accept=".xlsx,.xls,.csv" multiple style="display:none">
+  <div class="price-cards" id="priceCards"></div>
   <div class="table-wrap"><table id="items">
   <thead><tr><th>No</th><th>Kode Barang</th><th>Deskripsi</th><th>Qty (Boks)</th><th>Isi per Boks (pcs)</th><th>Harga/Boks (Rp)</th><th>Jumlah (Rp)</th><th>Porsi dari Total</th><th>Alokasi Diskon 1</th><th>Alokasi Diskon 2</th><th>Total Diskon</th><th>Jumlah Setelah Diskon</th><th>Harga Beli/Boks Setelah Diskon</th><th>Harga Beli/pcs Setelah Diskon</th><th>Aksi</th></tr></thead>
   <tbody id="body"></tbody>
   <tfoot><tr class="total-row"><td colspan="3">TOTAL</td><td id="totalQty">0</td><td></td><td></td><td id="totalGross">Rp 0</td><td id="totalShare">100%</td><td id="totalD1">Rp 0</td><td id="totalD2">Rp 0</td><td id="totalDisc">Rp 0</td><td id="totalNet">Rp 0</td><td></td><td></td><td></td></tr></tfoot>
   </table></div>
 </section>
-<section class="panel">
+<section class="panel view-calc">
   <div class="summary">
     <div class="metric"><small>Total invoice setelah diskon (hitungan)</small><strong id="computed">Rp 0</strong></div>
-    <div class="metric"><small>Total tertera di invoice (isi manual)</small><input id="invoiceTotal" class="manual money" inputmode="numeric" style="width:100%;font-size:19px;font-weight:700;padding:8px;border:1px solid #d9e0ea;border-radius:7px"></div>
+    <div class="metric"><small>Total tertera di invoice (isi manual)</small><input id="invoiceTotal" class="manual money" value="559273071" inputmode="numeric" style="width:100%;font-size:19px;font-weight:700;padding:8px;border:1px solid #d9e0ea;border-radius:7px"></div>
     <div class="metric" id="differenceBox"><small>Selisih (cek)</small><strong id="difference">Rp 0</strong><div id="diffLabel" class="notes">Isi total invoice untuk pengecekan.</div></div>
   </div>
 </section>
-<section class="panel noprint">
-  <h2 style="margin:0 0 10px;font-size:16px">Riwayat Invoice Tersimpan</h2>
-  <div class="meta" style="grid-template-columns:2fr 1fr">
-    <div class="field"><label>Cari (no. invoice, supplier, nama/kode barang)</label><input id="q" placeholder="mis. Minyak Goreng, atau 20260402"></div>
-    <div class="field"><label>Bulan</label><select id="bln"></select></div>
+<section class="panel view-saved" id="savedPanel" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <strong>Invoice Tersimpan <span id="savedCount" style="color:var(--muted);font-weight:400"></span></strong>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="saveCurrent(true)">💾 Simpan Invoice Ini</button>
+      <button class="btn secondary" onclick="exportAllXLSX()">📊 Ekspor Semua (Excel)</button>
+      <button class="btn secondary" onclick="downloadAllCSV()">⬇ Ekspor Semua (CSV)</button>
+      <button class="btn secondary" onclick="backupJSON()">⬇ Backup</button>
+      <button class="btn secondary" onclick="document.getElementById('restoreFile').click()">⬆ Pulihkan Backup</button>
+      <input type="file" id="restoreFile" accept=".json" style="display:none">
+    </div>
   </div>
-  <div id="list"></div>
-  <div id="sum" class="notes" style="margin-bottom:10px"></div>
-  <div class="actions">
-    <button class="btn secondary" onclick="expJson()">⬆ Backup (JSON)</button>
-    <button class="btn secondary" onclick="document.getElementById('imp').click()">⬇ Pulihkan Backup</button>
-    <button class="btn secondary" onclick="expAll()">Ekspor Semua ke Excel (CSV)</button>
-    <input id="imp" type="file" accept=".json,application/json" hidden>
-  </div>
-  <p class="notes">Data tersimpan di perangkat (IndexedDB) dan di server (Supabase). Siapa pun yang membuka link bisa <b>melihat</b> riwayat; untuk menyimpan/menghapus perlu <b>Kode edit</b>. Tetap lakukan Backup berkala.</p>
+  <div class="table-wrap"><table id="savedTable" style="min-width:700px">
+    <thead><tr><th>No. Invoice</th><th>Tanggal</th><th>Customer</th><th>Total Setelah Diskon</th><th>Barang</th><th>Aksi</th></tr></thead>
+    <tbody id="savedBody"></tbody>
+  </table></div>
+  <p class="notes">Invoice tersimpan di browser ini (otomatis saat impor Excel). Jika No. Invoice sama, data lama ditimpa. Gunakan Backup untuk cadangan atau pindah perangkat.</p>
 </section>
-<section class="panel notes"><strong>Catatan penggunaan</strong><ol>
+<section class="panel notes view-calc"><strong>Catatan penggunaan</strong><ol>
 <li>Diskon dibagi ke tiap barang secara proporsional terhadap nilai jumlah masing-masing barang.</li>
 <li>Harga invoice diasumsikan sudah termasuk PPN; PPN tidak ditambahkan lagi.</li>
 <li>Ubah kode, deskripsi, qty, isi per boks, harga, dan diskon sesuai invoice. Kolom hitungan akan otomatis berubah.</li>
-<li>Kolom kuning/huruf biru adalah input manual. Isi Tanggal Invoice lalu klik Simpan Invoice. Gunakan Cetak / Simpan PDF untuk laporan.</li>
+<li>Kolom kuning/huruf biru adalah input manual. Gunakan tombol Cetak / Simpan PDF untuk menyimpan laporan.</li>
 </ol></section>
 </main>
 <script>
-const $=i=>document.getElementById(i),body=$('body');
+const initial=[
+['010506000','FITRI Botol 24x200Ml',500,24,113000],
+['010508003','FITRI Botol Regular New x 12',1900,12,208800],
+['010508303','Minyak Goreng Fitri Botol kecil x12',900,12,110000],
+['020701200','Margarina FORVITA 60x200G',50,60,318060]
+];
+const body=document.getElementById('body');
 const fmt=n=>'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID');
-const num=v=>{if(typeof v==='number')return isFinite(v)?v:0;
-let s=String(v??'').replace(/[^\d.,-]/g,'');if(!s)return 0;const neg=s.startsWith('-');s=s.replace(/-/g,'');
-const lc=s.lastIndexOf(','),ld=s.lastIndexOf('.');
-if(lc>=0&&ld>=0){const dec=lc>ld?',':'.',th=dec===','?'.':',';s=s.split(th).join('').replace(dec,'.')}
-else if(lc>=0||ld>=0){const p=s.split(lc>=0?',':'.');
-if(p.length>2)s=p.join('');else if(p[1].length===3&&p[0].length>0&&p[0].length<=3&&p[0]!=='0')s=p.join('');else s=p[0]+'.'+p[1]}
-const n=parseFloat(s);return(neg?-1:1)*(isNaN(n)?0:n)};
-const norm=i=>i.addEventListener('change',()=>{i.value=String(num(i.value));calculate()});
-const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-const fd=t=>t?t.split('-').reverse().join('/'):'-';
-const BL=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-const FM={sup:'supplier',cust:'customer',no:'invoice',tgl:'date',top:'top',d1:'disc1',d2:'disc2',it:'invoiceTotal'};
-let curId=null,saved=[],code='',canEdit=false,online=null,syncing=false,out='';
-/* ===== tabel ===== */
-const inp=(v,c)=>`<input class="${c} money" inputmode="numeric" value="${esc(v)}">`;
-function addRow(data=['','',0,1,0],skip){
+const num=v=>{if(typeof v==='number')return v;return Number(String(v??'').replace(/[^\d-]/g,''))||0};
+function moneyInput(v, cls='num'){return `<input class="${cls} money" inputmode="numeric" value="${v}">`}
+function addRow(data=['','','',0,1,0]){
  const tr=document.createElement('tr');
- tr.innerHTML=`<td class="rowno"></td><td>${inp(data[0]||'','code')}</td><td>${inp(data[1]||'','txt')}</td><td>${inp(data[2]||0,'num')}</td><td>${inp(data[3]||1,'num')}</td><td>${inp(data[4]||0,'num')}</td><td class="calc gross">0</td><td class="calc share">0%</td><td class="calc d1">0</td><td class="calc d2">0</td><td class="calc dt">0</td><td class="calc net">0</td><td class="calc box">0</td><td class="calc pcs">0</td><td><button class="btn danger" style="padding:6px 8px" onclick="this.closest('tr').remove();calculate()">Hapus</button></td>`;
- tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calculate));[2,3,4].forEach(k=>norm(tr.querySelectorAll('input')[k]));
- body.appendChild(tr);if(!skip)calculate();
+ tr.innerHTML=`<td class="rowno"></td><td>${moneyInput(data[0]||'','code')}</td><td>${moneyInput(data[1]||'','txt')}</td><td>${moneyInput(data[2]||0)}</td><td>${moneyInput(data[3]||1)}</td><td>${moneyInput(data[4]||0)}</td><td class="calc gross">0</td><td class="calc share">0%</td><td class="calc d1">0</td><td class="calc d2">0</td><td class="calc dt">0</td><td class="calc net">0</td><td class="calc box">0</td><td class="calc pcs">0</td><td><button class="btn danger" style="padding:6px 8px" onclick="this.closest('tr').remove();calculate()">Hapus</button></td>`;
+ tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calculate));
+ body.appendChild(tr);calculate();
 }
-function rows(){return [...body.querySelectorAll('tr')].map(tr=>{const i=tr.querySelectorAll('input');return{tr,code:i[0].value,desc:i[1].value,qty:num(i[2].value),pack:num(i[3].value),price:num(i[4].value)}})}
-const cur=()=>{const o={id:curId,rows:rows().map(r=>[r.code,r.desc,r.qty,r.pack,r.price])};for(const k in FM)o[k]=$(FM[k]).value;return o};
-function fill(o){for(const k in FM)$(FM[k]).value=o[k]??'';body.innerHTML='';(o.rows||[]).forEach(r=>addRow(r,true));calculate()}
-function comp(o){const d1=num(o.d1),d2=num(o.d2),G=o.rows.map(r=>num(r[2])*num(r[4])),T=G.reduce((a,b)=>a+b,0);
-const R=o.rows.map((r,i)=>{const q=num(r[2]),pk=num(r[3]),share=T?G[i]/T:0,a1=Math.round(share*d1),a2=Math.round(share*d2),net=G[i]-a1-a2;
-return{q,gross:G[i],share,a1,a2,disc:a1+a2,net,box:q?net/q:0,pcs:(q&&pk)?net/q/pk:0}});
-return{d1,d2,T,R,h:T-d1-d2,sq:R.reduce((s,x)=>s+x.q,0),s1:R.reduce((s,x)=>s+x.a1,0),s2:R.reduce((s,x)=>s+x.a2,0),sn:R.reduce((s,x)=>s+x.net,0)}}
+function rows(){return [...body.querySelectorAll('tr')].map(tr=>{let i=tr.querySelectorAll('input');return {tr,code:i[0].value,desc:i[1].value,qty:num(i[2].value),pack:num(i[3].value),price:num(i[4].value)}})}
 function calculate(){
- const o=cur(),m=comp(o),trs=[...body.querySelectorAll('tr')];
- m.R.forEach((x,i)=>{const t=trs[i],q=s=>t.querySelector(s);q('.rowno').textContent=i+1;q('.gross').textContent=fmt(x.gross);
- q('.share').textContent=(x.share*100).toLocaleString('id-ID',{maximumFractionDigits:2})+'%';q('.d1').textContent=fmt(x.a1);q('.d2').textContent=fmt(x.a2);
- q('.dt').textContent=fmt(x.disc);q('.net').textContent=fmt(x.net);q('.box').textContent=fmt(x.box);q('.pcs').textContent=fmt(x.pcs)});
- $('discTotal').value=fmt(m.d1+m.d2);$('totalQty').textContent=m.sq.toLocaleString('id-ID');$('totalGross').textContent=fmt(m.T);
- $('totalShare').textContent=(m.T?100:0)+'%';$('totalD1').textContent=fmt(m.s1);$('totalD2').textContent=fmt(m.s2);$('totalDisc').textContent=fmt(m.s1+m.s2);$('totalNet').textContent=fmt(m.sn);$('computed').textContent=fmt(m.h);
- const it=num(o.it),diff=it-m.h;$('difference').textContent=fmt(diff);
- const bx=$('differenceBox');bx.classList.toggle('good',it!==0&&diff===0);bx.classList.toggle('bad',it!==0&&diff!==0);
- $('diffLabel').textContent=it===0?'Isi total invoice untuk pengecekan.':diff===0?'Cocok — tidak ada selisih.':(diff>0?'Total invoice lebih besar ':'Total invoice lebih kecil ')+fmt(Math.abs(diff))+'.';
- $('stat').textContent=curId?'Mengedit invoice tersimpan':'Invoice baru (belum disimpan)';
- kvSet('state',o)}
+ const rs=rows(),grossTotal=rs.reduce((s,r)=>s+r.qty*r.price,0),d1=num(document.getElementById('disc1').value),d2=num(document.getElementById('disc2').value);
+ let sumD1=0,sumD2=0,sumNet=0,sumQty=0;
+ rs.forEach((r,idx)=>{
+  const gross=r.qty*r.price,share=grossTotal?gross/grossTotal:0;
+  const a1=Math.round(share*d1),a2=Math.round(share*d2),disc=a1+a2,net=gross-disc;
+  sumD1+=a1;sumD2+=a2;sumNet+=net;sumQty+=r.qty;
+  r.tr.querySelector('.rowno').textContent=idx+1;
+  r.tr.querySelector('.gross').textContent=fmt(gross);r.tr.querySelector('.share').textContent=(share*100).toLocaleString('id-ID',{maximumFractionDigits:2})+'%';
+  r.tr.querySelector('.d1').textContent=fmt(a1);r.tr.querySelector('.d2').textContent=fmt(a2);r.tr.querySelector('.dt').textContent=fmt(disc);r.tr.querySelector('.net').textContent=fmt(net);
+  r.tr.querySelector('.box').textContent=fmt(r.qty?net/r.qty:0);r.tr.querySelector('.pcs').textContent=fmt(r.pack?net/r.qty/r.pack:0);
+ });
+ document.getElementById('discTotal').value=fmt(d1+d2);
+ document.getElementById('totalQty').textContent=sumQty.toLocaleString('id-ID');document.getElementById('totalGross').textContent=fmt(grossTotal);
+ document.getElementById('totalShare').textContent=(grossTotal?100:0)+'%';document.getElementById('totalD1').textContent=fmt(sumD1);document.getElementById('totalD2').textContent=fmt(sumD2);
+ document.getElementById('totalDisc').textContent=fmt(sumD1+sumD2);document.getElementById('totalNet').textContent=fmt(sumNet);document.getElementById('computed').textContent=fmt(grossTotal-d1-d2);
+ const invoiceTotal=num(document.getElementById('invoiceTotal').value),diff=invoiceTotal-(grossTotal-d1-d2);
+ document.getElementById('difference').textContent=fmt(diff);
+ const box=document.getElementById('differenceBox');box.classList.toggle('good',invoiceTotal!==0&&diff===0);box.classList.toggle('bad',invoiceTotal!==0&&diff!==0);
+ document.getElementById('diffLabel').textContent=invoiceTotal===0?'Isi total invoice untuk pengecekan.':diff===0?'Cocok — tidak ada selisih.':(diff>0?'Total invoice lebih besar ':'Total invoice lebih kecil ')+fmt(Math.abs(diff))+'.';
+ renderPriceCards();
+}
 function resetItems(){if(confirm('Hapus semua barang dari tabel?')){body.innerHTML='';calculate()}}
-function csvOf(list){const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',n2=v=>v.toFixed(2).replace('.',',');
-let c='Tanggal;No Invoice;Supplier;Kode;Deskripsi;Qty Boks;Isi per Boks;Harga Invoice/Boks;Alokasi Diskon 1;Alokasi Diskon 2;Jumlah Setelah Diskon;Harga Beli/Boks;Harga Beli/pcs\n';
-list.forEach(o=>{const m=comp(o);o.rows.forEach((r,i)=>{const x=m.R[i];c+=[fd(o.tgl),q(o.no),q(o.sup),q(r[0]),q(r[1]),x.q,num(r[3]),num(r[4]),x.a1,x.a2,x.net,n2(x.box),n2(x.pcs)].join(';')+'\n'})});return'\ufeff'+c}
-function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
-const today=()=>new Date().toISOString().slice(0,10);
-function downloadCSV(){dl('RUMUSKU-FITRI.csv',csvOf([cur()]),'text/csv;charset=utf-8')}
-function expAll(){if(!saved.length){msg('Belum ada invoice tersimpan.','er');return}dl('riwayat-harga-beli-'+today()+'.csv',csvOf([...saved].sort((a,b)=>a.tgl.localeCompare(b.tgl))),'text/csv;charset=utf-8');msg('File CSV diunduh, bisa dibuka di Excel.','ok')}
-function expJson(){if(!saved.length){msg('Belum ada invoice untuk di-backup.','er');return}dl('backup-rumusku-fitri-'+today()+'.json',JSON.stringify({app:'hb-fitri',v:2,invoices:saved}),'application/json');msg('Backup diunduh. Simpan file ini di tempat aman (Drive/WhatsApp).','ok')}
-/* ===== IndexedDB ===== */
-let _db;const DB=()=>_db||(_db=new Promise((res,rej)=>{const q=indexedDB.open('hb-fitri',2);
-q.onupgradeneeded=()=>{const d=q.result;if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');if(!d.objectStoreNames.contains('inv'))d.createObjectStore('inv',{keyPath:'id'})};
-q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)}));
-async function io(st,mode,fn){const d=await DB();return new Promise((res,rej)=>{const t=d.transaction(st,mode),s=t.objectStore(st),r=fn(s);t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error)})}
-const kvGet=k=>io('kv','readonly',s=>s.get(k)).catch(()=>null);
-const kvSet=(k,v)=>io('kv','readwrite',s=>s.put(v,k)).catch(()=>{});
-const invAll=()=>io('inv','readonly',s=>s.getAll()).catch(()=>[]);
-const invPut=v=>io('inv','readwrite',s=>s.put(v));
-const invDel=k=>io('inv','readwrite',s=>s.delete(k));
-/* ===== Supabase ===== */
-const SB='https://lmcfacakevmribkddgbd.supabase.co',KEY='sb_publishable_z9uA7UerhURPpslDmCgqkA_o1Xwmv0c';
-const hdr=(x={})=>({apikey:KEY,'Content-Type':'application/json',...(code?{'x-edit-code':code}:{}),...x});
-async function sb(path,o={}){const c=new AbortController(),t=setTimeout(()=>c.abort(),15000);
-try{const r=await fetch(SB+'/rest/v1/'+path,{...o,headers:hdr(o.headers),signal:c.signal});
-if(!r.ok)throw new Error((await r.text()).slice(0,200)||r.status);const tx=await r.text();return tx?JSON.parse(tx):null}finally{clearTimeout(t)}}
-const toRow=o=>({id:o.id,tgl:o.tgl,no:o.no||'',sup:o.sup||'',cust:o.cust||'',topinfo:o.top||'',d1:num(o.d1),d2:num(o.d2),it:(o.it===''||o.it==null)?null:num(o.it),rows:o.rows,saved:o.saved||Date.now()});
-const fromRow=r=>({id:r.id,tgl:r.tgl,no:r.no||'',sup:r.sup||'',cust:r.cust||'',top:r.topinfo||'',d1:r.d1??'',d2:r.d2??'',it:r.it??'',rows:r.rows,saved:r.saved});
-const pushInv=o=>sb('invoices?on_conflict=id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(toRow(o))});
-function updSrv(){$('srv').textContent=online===false?'⚠ Server tidak terjangkau · data di perangkat':online===null?'☁ Menghubungkan…':canEdit?'☁ Tersambung · bisa edit':'☁ Tersambung · hanya lihat'}
-async function checkCode(){canEdit=false;if(!code)return;try{canEdit=(await sb('rpc/can_edit',{method:'POST',body:'{}'}))===true}catch(e){canEdit=false}}
-async function loadCode(){code=(await kvGet('code'))||'';await checkCode()}
-async function setCode(){const v=prompt('Masukkan kode edit.\nKosongkan lalu OK untuk mode hanya-lihat.',code);if(v===null)return;code=v.trim();await kvSet('code',code);await checkCode();
-msg(code?(canEdit?'Kode benar. Mode edit aktif ✓':'Kode salah atau server tidak terjangkau. Mode hanya-lihat.'):'Mode hanya-lihat.',canEdit?'ok':'er');updSrv();await sync()}
-async function sync(){if(syncing)return;syncing=true;
-try{const loc=await invAll();
-if(canEdit)for(const o of loc.filter(x=>x.sync!==true)){await pushInv(o);o.sync=true;await invPut(o)}
-const srv=(await sb('invoices?select=*&order=tgl.desc&limit=1000')).map(fromRow),ids=new Set(srv.map(x=>x.id));
-const now=await invAll(),pend=new Set(now.filter(x=>x.sync!==true).map(x=>x.id));
-for(const o of now)if(o.sync===true&&!ids.has(o.id))await invDel(o.id);
-for(const o of srv)if(!pend.has(o.id))await invPut({...o,sync:true});
-online=true}catch(e){online=false;console.warn(e)}
-syncing=false;updSrv();await refresh()}
-/* ===== simpan / riwayat ===== */
-function msg(t,c){const m=$('msg');m.textContent=t;m.className='notes '+(c||'')}
-async function saveInv(){const o=cur();if(!o.tgl){msg('Isi Tanggal Invoice dulu sebelum menyimpan.','er');$('date').focus();return}
-if(!o.rows.length){msg('Belum ada barang.','er');return}
-const dup=saved.find(x=>x.id!==curId&&o.no&&x.no===o.no);
-if(dup&&!confirm('No. invoice '+o.no+' sudah tersimpan (tgl '+fd(dup.tgl)+'). Tetap simpan sebagai invoice baru?'))return;
-o.id=curId||'i'+Date.now();o.saved=Date.now();o.sync=false;
-try{await invPut(o);curId=o.id;await refresh();calculate()}catch(e){msg('Gagal menyimpan: '+e,'er');return}
-if(!canEdit){msg('Tersimpan di perangkat ini. Untuk menyimpan ke server, masukkan Kode edit (tombol 🔑).','er');return}
-try{await pushInv(o);o.sync=true;await invPut(o);online=true;msg('Tersimpan di perangkat dan server ✓ ('+fd(o.tgl)+')','ok')}catch(e){online=false;msg('Tersimpan di perangkat, belum terkirim ke server: '+String(e.message||e).slice(0,140),'er')}
-updSrv();await refresh()}
-function newInv(){curId=null;fill({sup:'PT. Fokus Ritel Indoprima',cust:'Gajah Mas. CV - Kebumen',no:'',tgl:'',top:'',d1:'',d2:'',it:'',rows:[['','',0,1,0]]});msg('');scrollTo(0,0)}
-function openInv(id){const o=saved.find(x=>x.id===id);if(!o)return;curId=id;fill(o);msg('Invoice '+fd(o.tgl)+' dibuka.');scrollTo(0,0);renderList()}
-async function delInv(id){const o=saved.find(x=>x.id===id);if(!confirm('Hapus invoice '+fd(o.tgl)+' '+(o.no||'')+'?'))return;
-if(o.sync===true){if(!canEdit){msg('Menghapus invoice yang sudah di server perlu Kode edit (tombol 🔑).','er');return}
-try{const r=await sb('invoices?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{Prefer:'return=representation'}});if(!r||!r.length)throw new Error('tidak ada data terhapus (kode edit salah?)')}catch(e){msg('Gagal menghapus di server: '+e.message,'er');return}}
-await invDel(id);if(curId===id){curId=null;calculate()}refresh()}
-async function refresh(){saved=await invAll();const ms=[...new Set(saved.map(x=>(x.tgl||'').slice(0,7)).filter(Boolean))].sort().reverse();
-const sel=$('bln'),v=sel.value;sel.innerHTML='<option value="">Semua bulan</option>'+ms.map(m=>`<option value="${m}">${BL[+m.slice(5)-1]} ${m.slice(0,4)}</option>`).join('');sel.value=ms.includes(v)?v:'';renderList()}
-function renderList(){const q=$('q').value.trim().toLowerCase(),b=$('bln').value;let tot=0,n=0,h='';
-const L=saved.filter(o=>!b||(o.tgl||'').startsWith(b)).sort((a,c)=>(c.tgl||'').localeCompare(a.tgl||''));
-L.forEach(o=>{const m=comp(o),head=[o.no,o.sup,fd(o.tgl)].join(' ').toLowerCase(),idx=o.rows.map((r,i)=>i);
-const hit=idx.filter(i=>(o.rows[i][0]+' '+o.rows[i][1]).toLowerCase().includes(q));
-if(q&&!head.includes(q)&&!hit.length)return;const show=q&&!head.includes(q)?hit:idx;tot+=m.h;n++;
-h+=`<div class="it ${o.id===curId?'cur':''}"><div><b>${fd(o.tgl)}</b> · ${esc(o.no||'(tanpa no. invoice)')}<small>${esc(o.sup||'')} · ${o.rows.length} barang · Total setelah diskon ${fmt(m.h)}${o.sync===true?'':' · ⚠ belum di server'}</small>
-${show.map(i=>`<small>• ${esc(o.rows[i][1]||o.rows[i][0])}: ${fmt(m.R[i].box)}/boks · ${fmt(m.R[i].pcs)}/pcs</small>`).join('')}</div>
-<div class="actions" style="margin:0"><button class="btn" onclick="openInv('${o.id}')">Buka</button><button class="btn danger" onclick="delInv('${o.id}')">Hapus</button></div></div>`});
-$('list').innerHTML=h||'<p class="notes">Belum ada invoice tersimpan'+(q||b?' yang cocok dengan pencarian':'')+'.</p>';
-$('sum').textContent=n?`${n} invoice · Total pembelian setelah diskon: ${fmt(tot)}`:''}
-$('imp').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
-try{const d=JSON.parse(await f.text());if(!d.invoices)throw 0;for(const o of d.invoices){o.sync=false;await invPut(o)}await refresh();sync();msg('Backup dipulihkan: '+d.invoices.length+' invoice.','ok')}catch(x){msg('File backup tidak valid.','er')}});
-/* ===== lain-lain ===== */
-let dp=null;const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),sa=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
-if(!sa){addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('inst').hidden=false});if(ios)$('inst').hidden=false}
-addEventListener('appinstalled',()=>{$('inst').hidden=true;dp=null});
-async function install(){if(dp){dp.prompt();await dp.userChoice;dp=null;$('inst').hidden=true}
-else if(ios)alert("Di iPhone/iPad: ketuk tombol Share (kotak dengan panah ke atas) di Safari, lalu pilih 'Add to Home Screen'.");
-else alert("Buka menu browser (titik tiga), lalu pilih 'Install app' atau 'Add to Home screen'.")}
-Object.values(FM).forEach(i=>$(i).addEventListener('input',calculate));['disc1','disc2','invoiceTotal'].forEach(i=>norm($(i)));$('q').addEventListener('input',renderList);$('bln').addEventListener('change',renderList);
-addEventListener('online',sync);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
-(async()=>{updSrv();await refresh();const s=await kvGet('state');
-if(s&&s.rows&&s.rows.length){curId=s.id&&saved.some(x=>x.id===s.id)?s.id:null;fill(s)}else newInv();
-loadCode().then(sync);
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})})();
+function downloadCSV(){
+ const headers=['No','Kode Barang','Deskripsi','Qty (Boks)','Isi per Boks (pcs)','Harga/Boks (Rp)','Jumlah (Rp)','Porsi dari Total','Alokasi Diskon 1','Alokasi Diskon 2','Total Diskon','Jumlah Setelah Diskon','Harga Beli/Boks Setelah Diskon','Harga Beli/pcs Setelah Diskon'];
+ const data=[headers,...rows().map((r,i)=>{let gross=r.qty*r.price,share=rows().reduce((s,x)=>s+x.qty*x.price,0)?gross/rows().reduce((s,x)=>s+x.qty*x.price,0):0;let a1=Math.round(share*num(document.getElementById('disc1').value)),a2=Math.round(share*num(document.getElementById('disc2').value)),net=gross-a1-a2;return [i+1,r.code,r.desc,r.qty,r.pack,r.price,gross,share,a1,a2,a1+a2,net,r.qty?net/r.qty:0,(r.qty&&r.pack)?net/r.qty/r.pack:0]})];
+ const csv=data.map(row=>row.map(x=>'"'+String(x??'').replaceAll('"','""')+'"').join(';')).join('\r\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download='RUMUSKU-FITRI.csv';a.click();URL.revokeObjectURL(a.href)
+}
+document.querySelectorAll('#disc1,#disc2,#invoiceTotal').forEach(i=>i.addEventListener('input',calculate));
+
+function renderPriceCards(){
+  const rs=rows();
+  const d1=num(document.getElementById('disc1').value),d2=num(document.getElementById('disc2').value);
+  const grossTotal=rs.reduce((s,r)=>s+r.qty*r.price,0);
+  const el=document.getElementById('priceCards');
+  if(!rs.length){el.innerHTML='';return}
+  el.innerHTML=rs.map(r=>{
+    const gross=r.qty*r.price,share=grossTotal?gross/grossTotal:0;
+    const a1=Math.round(share*d1),a2=Math.round(share*d2),net=gross-a1-a2;
+    const box=r.qty?net/r.qty:0, pcs=(r.qty&&r.pack)?net/r.qty/r.pack:0;
+    return `<div class="price-card">
+      <div class="pc-code">${r.code||'-'}</div>
+      <div class="pc-desc" title="${(r.desc||'').replace(/"/g,'&quot;')}">${r.desc||'(tanpa deskripsi)'}</div>
+      <div class="pc-label">Harga Beli/Boks Setelah Diskon</div>
+      <div class="pc-value">${fmt(box)}</div>
+      <div class="pc-pcs">/pcs: ${fmt(pcs)}</div>
+    </div>`;
+  }).join('');
+}
+
+function closeMenu(){document.getElementById('actionsMenu').classList.remove('open')}
+document.getElementById('menuToggle').addEventListener('click',e=>{
+  e.stopPropagation();
+  document.getElementById('actionsMenu').classList.toggle('open');
+});
+document.addEventListener('click',()=>closeMenu());
+
+function parseInvoiceWorkbook(wb){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const grid=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null,blankrows:true});
+  const norm=v=>String(v??'').toLowerCase().replace(/\s+/g,' ').trim();
+  const empty=v=>v===null||v===undefined||String(v).trim()==='';
+  const toNum=v=>{if(typeof v==='number')return v;const s=String(v??'').trim();if(!s)return 0;
+    const t=s.replace(/[^\d,.\-]/g,'');
+    if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t))return Number(t.replace(/\./g,'').replace(',','.'));
+    if(/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t))return Number(t.replace(/,/g,''));
+    return Number(t.replace(',','.'))||0};
+  const toDate=v=>{if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return String(d.d).padStart(2,'0')+'/'+String(d.m).padStart(2,'0')+'/'+d.y}return String(v??'').trim()};
+  const after=(row,c)=>{for(let k=c+1;k<row.length;k++)if(!empty(row[k]))return row[k];return null};
+  const find=(labels)=>{for(const row of grid)for(let c=0;c<row.length;c++){if(labels.includes(norm(row[c]))){const v=after(row,c);if(v!==null)return v}}return null};
+  const out={items:[]};
+  out.supplier=grid.length?(grid.slice(0,4).flat().find(v=>/^pt\.?\s/i.test(String(v??'')))||null):null;
+  out.customer=find(['ship to'])??find(['customer']);
+  out.invoice=find(['invoice no.','invoice no','no. invoice']);
+  const dv=find(['invoice date','tanggal invoice']);out.date=dv===null?null:toDate(dv);
+  const d1=find(['discount 1','diskon 1']),d2=find(['discount 2','diskon 2']);
+  out.d1=d1===null?0:Math.abs(toNum(d1));out.d2=d2===null?0:Math.abs(toNum(d2));
+  const tp=find(['total tercetak di invoice','total tertera di invoice','total include ppn']);
+  const tp2=find(['total tercetak di invoice','total tertera di invoice']);
+  out.total=(tp2!==null?toNum(tp2):(tp!==null?toNum(tp):0));
+  let hr=-1,col={};
+  for(let r=0;r<grid.length&&hr<0;r++){const row=grid[r];
+    if(row.some(v=>norm(v)==='kode barang')){hr=r;
+      row.forEach((v,c)=>{const n=norm(v);
+        if(n==='kode barang')col.code=c;
+        else if(n.startsWith('deskripsi'))col.desc=c;
+        else if(n.startsWith('qty'))col.qty=c;
+        else if(n.startsWith('isi'))col.pack=c;
+        else if(n.startsWith('harga'))col.price=c;});}}
+  if(hr<0)throw new Error('Tabel barang tidak ditemukan (kolom "Kode Barang" tidak ada).');
+  const guessPack=d=>{const s=String(d||'');let m=s.match(/(\d+)\s*[xX]\s*\d/);if(m)return Number(m[1]);m=s.match(/[xX]\s*(\d+)/);return m?Number(m[1]):1};
+  for(let r=hr+1;r<grid.length;r++){const row=grid[r];
+    const code=row[col.code],desc=row[col.desc];
+    if(empty(code)&&empty(desc))break;
+    const pack=col.pack!==undefined&&!empty(row[col.pack])?toNum(row[col.pack]):guessPack(desc);
+    out.items.push([String(code??'').trim(),String(desc??'').trim(),toNum(row[col.qty]),pack||1,toNum(row[col.price])]);}
+  if(!out.items.length)throw new Error('Tidak ada baris barang yang terbaca.');
+  return out;
+}
+
+
+function showTab(t){
+  document.querySelectorAll('.view-calc').forEach(e=>e.style.display=t==='calc'?'':'none');
+  document.getElementById('savedPanel').style.display=t==='saved'?'':'none';
+  document.getElementById('tabCalc').classList.toggle('active',t==='calc');
+  document.getElementById('tabSaved').classList.toggle('active',t==='saved');
+  if(t==='saved')renderSaved();
+}
+const STORE_KEY='rumusku_fitri_invoices';
+const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const escH=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function loadStore(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch(e){return {}}}
+function saveStore(o){try{localStorage.setItem(STORE_KEY,JSON.stringify(o));return true}catch(e){alert('Gagal menyimpan di browser: '+e.message+'\nGunakan tombol Backup.');return false}}
+function getState(){
+  const g=id=>document.getElementById(id).value;
+  return {supplier:g('supplier'),customer:g('customer'),invoice:g('invoice'),date:g('date'),
+    d1:num(g('disc1')),d2:num(g('disc2')),total:num(g('invoiceTotal')),
+    items:rows().map(r=>[r.code,r.desc,r.qty,r.pack,r.price])};
+}
+function netOf(d){return d.items.reduce((s,i)=>s+i[2]*i[4],0)-d.d1-d.d2}
+function saveCurrent(notify){
+  const d=getState();const id=(d.invoice||'').trim();
+  if(!id){alert('Isi No. Invoice dulu agar bisa disimpan.');return false}
+  const st=loadStore();const existed=!!st[id];d.savedAt=Date.now();st[id]=d;
+  if(!saveStore(st))return false;renderSaved();
+  if(notify)alert('Invoice '+id+(existed?' diperbarui.':' tersimpan.'));
+  return true;
+}
+function applyImport(d){
+  const set=(id,v)=>{if(v!==null&&v!==undefined&&v!=='')document.getElementById(id).value=v};
+  set('supplier',d.supplier);set('customer',d.customer);set('invoice',d.invoice);set('date',d.date);
+  document.getElementById('disc1').value=d.d1;document.getElementById('disc2').value=d.d2;
+  document.getElementById('invoiceTotal').value=d.total||0;
+  body.innerHTML='';d.items.forEach(it=>addRow([esc(it[0]),esc(it[1]),it[2],it[3],it[4]]));calculate();
+}
+function renderSaved(){
+  const st=loadStore(),ids=Object.keys(st).sort((a,b)=>(st[b].savedAt||0)-(st[a].savedAt||0));
+  document.getElementById('savedCount').textContent='('+ids.length+')';document.getElementById('tabCount').textContent='('+ids.length+')';
+  document.getElementById('savedBody').innerHTML=ids.length?ids.map(id=>{const d=st[id];
+    return `<tr><td style="text-align:left">${escH(id)}</td><td style="text-align:left">${escH(d.date)}</td><td style="text-align:left">${escH(d.customer)}</td><td>${fmt(netOf(d))}</td><td>${d.items.length}</td><td><button class="btn" style="padding:6px 10px" data-open="${escH(id)}">Buka</button> <button class="btn danger" style="padding:6px 10px" data-del="${escH(id)}">Hapus</button></td></tr>`}).join('')
+    :'<tr><td colspan="6" style="text-align:center;color:#64748b">Belum ada invoice tersimpan.</td></tr>';
+}
+document.getElementById('savedBody').addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]'),x=e.target.closest('[data-del]'),st=loadStore();
+  if(o&&st[o.dataset.open]){applyImport(st[o.dataset.open]);showTab('calc');window.scrollTo({top:0,behavior:'smooth'})}
+  if(x&&confirm('Hapus invoice '+x.dataset.del+' dari daftar tersimpan?')){delete st[x.dataset.del];saveStore(st);renderSaved()}
+});
+
+function buildWorkbook(list){
+  const wb=new ExcelJS.Workbook(),used={};
+  const NUM='#,##0;\\(#,##0\\);\\-',DEC='#,##0.00;\\(#,##0.00\\);\\-',PCT='0.00%';
+  const thin={style:'thin'},BORDER={top:thin,left:thin,bottom:thin,right:thin};
+  const BLUE={argb:'FF0000FF'},YEL={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF99'}},LB={type:'pattern',pattern:'solid',fgColor:{argb:'FFD9E1F2'}},HD={type:'pattern',pattern:'solid',fgColor:{argb:'FF1F4E78'}};
+  list.forEach((d,k)=>{
+    let nm=list.length===1?'Harga Beli':String(d.invoice||'Invoice '+(k+1)).replace(/[\\\/\?\*\[\]:]/g,'').slice(0,28)||'Invoice';
+    let u=nm,c=1;while(used[u])u=nm+'_'+(++c);used[u]=1;
+    const ws=wb.addWorksheet(u),n=d.items.length,first=13,last=12+n,tot=13+n;
+    const base={name:'Arial',size:10};
+    const set=(addr,v,o={})=>{const c=ws.getCell(addr);c.value=v;c.font=Object.assign({},base,o.font||{});if(o.fill)c.fill=o.fill;if(o.nf)c.numFmt=o.nf;if(o.border)c.border=o.border;if(o.al)c.alignment=o.al;return c};
+    [5,13,36,12,12,15,17,11,15,15,14,18,20,18].forEach((w,i)=>ws.getColumn(i+1).width=w);
+    set('A1','PERHITUNGAN HARGA BELI SETELAH DISKON',{font:{size:14,bold:true}});ws.getRow(1).height=17.25;
+    [['Supplier',d.supplier],['Customer',d.customer],['No. Invoice',d.invoice],['Tanggal Invoice',d.date],['TOP / Jatuh Tempo','']].forEach((r,i)=>{
+      set('A'+(3+i),r[0],{font:{bold:true}});set('C'+(3+i),r[1],{font:{color:BLUE}})});
+    set('A9','Diskon 1 (Rp)',{font:{bold:true}});set('C9',d.d1,{font:{color:BLUE},fill:YEL,nf:NUM});
+    set('A10','Diskon 2 (Rp)',{font:{bold:true}});set('C10',d.d2,{font:{color:BLUE},fill:YEL,nf:NUM});
+    set('E9','<- sel kuning/huruf biru = isi manual (diskon sesuai invoice)',{font:{color:{argb:'FF666666'}}});
+    ['No','Kode Barang','Deskripsi','Qty (Boks)','Isi per Boks (pcs)','Harga/Boks (Rp)','Jumlah (Rp)','Porsi dari Total','Alokasi Diskon 1','Alokasi Diskon 2','Total Diskon','Jumlah Setelah Diskon','HARGA BELI/BOKS Setelah Diskon','Harga Beli/pcs Setelah Diskon']
+      .forEach((h,i)=>set(String.fromCharCode(65+i)+'12',h,{font:{bold:true,color:{argb:'FFFFFFFF'}},fill:HD,border:BORDER,al:{horizontal:'center',vertical:'middle',wrapText:true}}));
+    ws.getRow(12).height=45;
+    const gt=d.items.reduce((s,i)=>s+i[2]*i[4],0);let sQ=0,sG=0,sH=0,sI=0,sJ=0,sK=0,sL=0;
+    d.items.forEach((i,x)=>{
+      const r=first+x,gross=i[2]*i[4],sh=gt?gross/gt:0,a1=sh*d.d1,a2=sh*d.d2,net=gross-a1-a2,box=i[2]?net/i[2]:0,pcs=i[3]?box/i[3]:0;
+      sQ+=i[2];sG+=gross;sH+=sh;sI+=a1;sJ+=a2;sK+=a1+a2;sL+=net;
+      set('A'+r,x+1,{border:BORDER});
+      set('B'+r,String(i[0]),{font:{color:BLUE},border:BORDER});set('C'+r,String(i[1]),{font:{color:BLUE},border:BORDER});
+      set('D'+r,i[2],{font:{color:BLUE},nf:NUM,border:BORDER});set('E'+r,i[3],{font:{color:BLUE},nf:NUM,border:BORDER});set('F'+r,i[4],{font:{color:BLUE},nf:NUM,border:BORDER});
+      set('G'+r,{formula:`D${r}*F${r}`,result:gross},{nf:NUM,border:BORDER});
+      set('H'+r,{formula:`IF($G$${tot}=0,0,G${r}/$G$${tot})`,result:sh},{nf:PCT,border:BORDER});
+      set('I'+r,{formula:`H${r}*$C$9`,result:a1},{nf:DEC,border:BORDER});
+      set('J'+r,{formula:`H${r}*$C$10`,result:a2},{nf:DEC,border:BORDER});
+      set('K'+r,{formula:`I${r}+J${r}`,result:a1+a2},{nf:NUM,border:BORDER});
+      set('L'+r,{formula:`G${r}-K${r}`,result:net},{nf:NUM,border:BORDER});
+      set('M'+r,{formula:`IF(D${r}=0,0,L${r}/D${r})`,result:box},{font:{bold:true},fill:LB,nf:DEC,border:BORDER});
+      set('N'+r,{formula:`IF(E${r}=0,0,M${r}/E${r})`,result:pcs},{nf:DEC,border:BORDER});
+    });
+    'ABCDEFGHIJKLMN'.split('').forEach(L=>set(L+tot,null,{font:{bold:true},fill:LB,border:BORDER}));
+    set('C'+tot,'TOTAL',{font:{bold:true},fill:LB,border:BORDER});
+    const sum=(L,v,nf)=>set(L+tot,{formula:`SUM(${L}${first}:${L}${last})`,result:v},{font:{bold:true},fill:LB,nf,border:BORDER});
+    sum('D',sQ,NUM);sum('G',sG,NUM);sum('H',sH,PCT);sum('I',sI,DEC);sum('J',sJ,DEC);sum('K',sK,NUM);sum('L',sL,NUM);
+    const comp=gt-d.d1-d.d2,t=tot+2;
+    set('C'+t,'Total invoice setelah diskon (hitungan)',{font:{bold:true}});set('G'+t,{formula:`G${tot}-C9-C10`,result:comp},{nf:DEC});
+    set('C'+(t+1),'Total tertera di invoice (isi manual)',{font:{bold:true}});set('G'+(t+1),d.total||null,{font:{color:BLUE},fill:YEL,nf:DEC});
+    set('C'+(t+2),'Selisih (cek)',{font:{bold:true}});set('G'+(t+2),{formula:`IF(G${t+1}="","",G${t+1}-G${t})`,result:d.total?d.total-comp:''},{nf:DEC});
+    const g={color:{argb:'FF444444'}},nr=t+4;
+    set('A'+nr,'CATATAN:',{font:{bold:true}});
+    ['1. Diskon dibagi ke tiap barang secara proporsional terhadap nilai (Jumlah) masing-masing barang.',
+     "2. Harga pada invoice diasumsikan sudah termasuk PPN (tertulis 'TOTAL INCLUDE PPN'), jadi tidak ditambah PPN lagi.",
+     `3. Isi per boks (${d.items.map(i=>i[3]).join(', ')}) diambil dari nama barang di invoice; ubah jika berbeda.`,
+     '4. Total di invoice diisi manual di sel kuning untuk pengecekan selisih.',
+     '5. Cara pakai ulang: ganti kode, deskripsi, qty, isi, harga (huruf biru) dan diskon; kolom lain otomatis. Tambah baris dengan menyisipkan baris di antara data lalu salin rumusnya.']
+     .forEach((x,i)=>set('A'+(nr+1+i),x,{font:g}));
+    ws.views=[{state:'frozen',xSplit:3,ySplit:12}];
+  });
+  return wb;
+}
+async function exportXLSX(list,fname){
+  if(typeof ExcelJS==='undefined'){alert('Library Excel belum termuat. Pastikan terhubung ke internet lalu muat ulang halaman.');return}
+  try{
+    const buf=await buildWorkbook(list).xlsx.writeBuffer();
+    downloadFile(fname,buf,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  }catch(err){alert('Gagal membuat file Excel: '+err.message)}
+}
+function exportCurrentXLSX(){const d=getState();if(!d.items.length){alert('Tabel barang masih kosong.');return}exportXLSX([d],'RUMUSKU-FITRI-'+(d.invoice||'invoice').replace(/[^\w\-]/g,'')+'.xlsx')}
+function exportAllXLSX(){const st=loadStore(),ids=Object.keys(st);if(!ids.length){alert('Belum ada invoice tersimpan.');return}exportXLSX(ids.map(i=>st[i]),'RUMUSKU-FITRI-semua-invoice.xlsx')}
+function downloadFile(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function backupJSON(){downloadFile('RUMUSKU-FITRI-backup.json',JSON.stringify(loadStore(),null,1),'application/json')}
+document.getElementById('restoreFile').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{const data=JSON.parse(await f.text());if(typeof data!=='object'||Array.isArray(data))throw new Error('Format backup tidak valid.');
+    const st=Object.assign(loadStore(),data);if(saveStore(st)){renderSaved();alert('Backup dipulihkan: '+Object.keys(data).length+' invoice.')}
+  }catch(err){alert('Gagal memulihkan: '+err.message)}
+  e.target.value='';
+});
+function downloadAllCSV(){
+  const st=loadStore(),ids=Object.keys(st);if(!ids.length){alert('Belum ada invoice tersimpan.');return}
+  const head=['No. Invoice','Tanggal','Customer','Kode Barang','Deskripsi','Qty (Boks)','Isi per Boks (pcs)','Harga/Boks (Rp)','Jumlah (Rp)','Alokasi Diskon 1','Alokasi Diskon 2','Jumlah Setelah Diskon','Harga Beli/Boks Setelah Diskon','Harga Beli/pcs Setelah Diskon'];
+  const out=[head];
+  ids.forEach(id=>{const d=st[id],gt=d.items.reduce((s,i)=>s+i[2]*i[4],0);
+    d.items.forEach(i=>{const gross=i[2]*i[4],sh=gt?gross/gt:0,a1=Math.round(sh*d.d1),a2=Math.round(sh*d.d2),net=gross-a1-a2;
+      out.push([id,d.date,d.customer,i[0],i[1],i[2],i[3],i[4],gross,a1,a2,net,i[2]?net/i[2]:0,(i[2]&&i[3])?net/i[2]/i[3]:0])})});
+  const csv=out.map(r=>r.map(x=>'"'+String(x??'').replaceAll('"','""')+'"').join(';')).join('\r\n');
+  downloadFile('RUMUSKU-FITRI-semua-invoice.csv','\ufeff'+csv,'text/csv;charset=utf-8;');
+}
+document.getElementById('xlsFile').addEventListener('change',async e=>{
+  const files=[...e.target.files];if(!files.length)return;
+  const ok=[],bad=[];
+  for(const f of files){
+    try{
+      if(typeof XLSX==='undefined')throw new Error('Library Excel belum termuat. Pastikan terhubung ke internet lalu muat ulang halaman.');
+      const d=parseInvoiceWorkbook(XLSX.read(await f.arrayBuffer(),{type:'array'}));
+      applyImport(d);
+      if(saveCurrent(false))ok.push((d.invoice||f.name)+' ('+d.items.length+' barang)');else bad.push(f.name+': tidak ada No. Invoice, tidak disimpan');
+    }catch(err){bad.push(f.name+': '+err.message)}
+  }
+  alert((ok.length?'Berhasil impor & simpan:\n- '+ok.join('\n- ')+'\n\nYang tampil di tabel: invoice terakhir. Cek Isi per Boks dan Selisih (cek).':'')+(bad.length?'\n\nGagal:\n- '+bad.join('\n- '):''));
+  showTab('calc');
+  e.target.value='';
+});
+renderSaved();
+
+initial.forEach(d=>addRow(d));
+calculate();
 </script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>
