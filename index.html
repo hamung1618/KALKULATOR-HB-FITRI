@@ -13,8 +13,8 @@
 :root{--bg:#f4f6f9;--panel:#fff;--text:#172033;--muted:#64748b;--line:#d9e0ea;--blue:#155eef;--yellow:#fff2a8;--green:#e8f7ee;--red:#fdecec}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Arial,Helvetica,sans-serif}
 header{background:#163b65;color:#fff;padding:6px 24px}header p{margin:0;color:#d9e8f8;font-size:12px}
-main{max-width:1500px;margin:18px auto;padding:0 16px 30px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:15px;box-shadow:0 2px 8px #1522380a}.panel.meta-panel{background:transparent;border:0;box-shadow:none;padding:8px 0;margin-bottom:8px}
-.meta{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700}.field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:#172033}
+main{max-width:1500px;margin:18px auto;padding:0 16px 30px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:15px;box-shadow:0 2px 8px #1522380a}.panel.meta-panel{background:transparent;border:0;box-shadow:none;padding:2px 0;margin-bottom:2px}
+.meta{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:8px}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:2px;font-weight:700}.meta .field input{padding:4px 8px;font-size:13px}.field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:#172033}
 .discount-row{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:4px}
 .discount{display:flex;gap:14px;flex-wrap:wrap;align-items:end;flex:1}.discount .field{width:min(260px,100%)}
 .actions-bar{margin:0!important;flex-shrink:0;padding-bottom:2px}.manual{background:var(--yellow)!important;color:#0645ad!important;font-weight:700}
@@ -84,8 +84,10 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
         <button onclick="addRow();closeMenu()">＋ Tambah Barang</button>
         <button onclick="document.getElementById('invoiceTotal').focus();closeMenu()">Isi Total Invoice</button>
         <button onclick="window.print();closeMenu()">🖨 Cetak / Simpan PDF</button>
-        <button onclick="exportCurrentXLSX();closeMenu()">📊 Ekspor Excel (.xlsx)</button>
         <button onclick="downloadCSV();closeMenu()">⬇ Ekspor CSV</button>
+        <button onclick="downloadAllCSV();closeMenu()">⬇ Ekspor Semua (CSV)</button>
+        <button onclick="backupJSON();closeMenu()">⬇ Backup</button>
+        <button onclick="document.getElementById('restoreFile').click();closeMenu()">⬆ Pulihkan Backup</button>
         <button class="danger-item" onclick="resetItems();closeMenu()">Kosongkan Semua</button>
       </div>
     </div>
@@ -125,21 +127,19 @@ table{border-collapse:collapse;width:100%;min-width:1250px;background:#fff}th,td
 <section class="panel view-saved" id="savedPanel" style="display:none">
   <div id="cloudBar" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:#eef4ff;border:1px solid #c9dafc;border-radius:8px;padding:8px 12px;margin-bottom:12px">
     <span id="cloudMsg" style="font-size:13px"></span>
-    <span style="display:flex;gap:8px"><button class="btn secondary" id="cloudSync" style="padding:6px 10px;display:none">☁ Sinkronkan ke Cloud</button><button class="btn" id="cloudLogin" style="padding:6px 10px">Masuk</button><button class="btn secondary" id="cloudLogout" style="padding:6px 10px;display:none">Keluar</button></span>
+    <span style="display:flex;gap:8px"><button class="btn secondary" id="cloudSync" style="padding:6px 10px;display:none">☁ Sinkronkan ke Cloud</button><button class="btn" id="cloudLogin" style="padding:6px 10px">Masuk</button></span>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
     <strong>Invoice Tersimpan <span id="savedCount" style="color:var(--muted);font-weight:400"></span></strong>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn" onclick="saveCurrent(true)">💾 Simpan Invoice Ini</button>
-      <button class="btn secondary" onclick="exportAllXLSX()">📊 Ekspor Semua (Excel)</button>
-      <button class="btn secondary" onclick="downloadAllCSV()">⬇ Ekspor Semua (CSV)</button>
-      <button class="btn secondary" onclick="backupJSON()">⬇ Backup</button>
-      <button class="btn secondary" onclick="document.getElementById('restoreFile').click()">⬆ Pulihkan Backup</button>
-      <input type="file" id="restoreFile" accept=".json" style="display:none">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:13px;color:var(--muted);font-weight:700">Simpan Excel:</span>
+      <button class="btn secondary" id="xlsAll" onclick="exportSavedXLSX(false)">📊 Semua</button>
+      <button class="btn secondary" id="xlsSel" onclick="exportSavedXLSX(true)" disabled style="opacity:.5">📊 Yang Dicentang (0)</button>
     </div>
+    <input type="file" id="restoreFile" accept=".json" style="display:none">
   </div>
   <div class="table-wrap"><table id="savedTable" style="min-width:780px">
-    <thead><tr><th>No. Invoice</th><th>Tanggal</th><th>Customer</th><th>Total Setelah Diskon</th><th>Barang</th><th>Foto Sumber</th><th>Aksi</th></tr></thead>
+    <thead><tr><th style="text-align:center;width:36px"><input type="checkbox" id="selAll" title="Centang semua"></th><th>No. Invoice</th><th>Tanggal</th><th>Customer</th><th>Total Setelah Diskon</th><th>Barang</th><th>Foto Sumber</th><th>Aksi</th></tr></thead>
     <tbody id="savedBody"></tbody>
   </table></div>
   <p class="notes">Invoice tersimpan di browser ini dan, bila sudah masuk (☁), juga di cloud Supabase (otomatis saat impor Excel). Jika No. Invoice sama, data lama ditimpa. Foto sumber invoice (tombol "Tambah") juga ikut tersimpan di cloud bila sudah masuk, dan ikut tersimpan di Backup. Gunakan Backup untuk cadangan atau pindah perangkat.</p>
@@ -319,15 +319,24 @@ function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObj
   im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);
     const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',q))};
   im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('File bukan gambar yang bisa dibaca browser.'))};im.src=u})}
-let photoTarget=null,savedToken=0;
+let photoTarget=null,savedToken=0;const selSaved=new Set();
+function updSel(){const b=document.getElementById('xlsSel'),n=selSaved.size;if(!b)return;b.textContent='📊 Yang Dicentang ('+n+')';b.disabled=!n;b.style.opacity=n?1:.5;
+  const rows=[...document.querySelectorAll('.selRow')],a=document.getElementById('selAll');if(a){a.checked=rows.length>0&&rows.every(r=>r.checked);a.indeterminate=n>0&&!a.checked}}
+document.addEventListener('change',e=>{const t=e.target;
+  if(t.id==='selAll'){document.querySelectorAll('.selRow').forEach(r=>{r.checked=t.checked;t.checked?selSaved.add(r.dataset.sel):selSaved.delete(r.dataset.sel)});updSel()}
+  else if(t.classList&&t.classList.contains('selRow')){t.checked?selSaved.add(t.dataset.sel):selSaved.delete(t.dataset.sel);updSel()}});
+function exportSavedXLSX(onlySel){const st=loadStore();let ids=Object.keys(st);if(onlySel)ids=ids.filter(i=>selSaved.has(i));
+  if(!ids.length){alert(onlySel?'Belum ada invoice yang dicentang.':'Belum ada invoice tersimpan.');return}
+  exportXLSX(ids.map(i=>st[i]),onlySel&&ids.length===1?'RUMUSKU-FITRI-'+ids[0].replace(/[^\w\-]/g,'')+'.xlsx':'RUMUSKU-FITRI-'+(onlySel?'invoice-terpilih':'semua-invoice')+'.xlsx')}
 async function renderSaved(){
   const tk=++savedToken,st=loadStore(),ids=Object.keys(st).sort((a,b)=>(st[b].savedAt||0)-(st[a].savedAt||0));
   document.getElementById('savedCount').textContent='('+ids.length+')';document.getElementById('tabCount').textContent='('+ids.length+')';
   const ph=await phAll();if(tk!==savedToken)return;
   document.getElementById('savedBody').innerHTML=ids.length?ids.map(id=>{const d=st[id],f=ph[id];
     const foto=f?`<img class="thumb" src="${f.thumb||f.img}" data-view="${escH(id)}" alt="Foto" title="Klik untuk melihat">`:`<button class="btn secondary" style="padding:6px 10px" data-add="${escH(id)}">📷 Tambah</button>`;
-    return `<tr><td style="text-align:left">${escH(id)}${window.cloudOn?(window.cloudIds&&window.cloudIds.has(id)?' <span title="Sudah tersimpan di cloud" style="color:#16a34a">☁✓</span>':' <span title="Belum terunggah ke cloud" style="color:#b42318">☁✗</span>'):''}</td><td style="text-align:left">${escH(d.date)}</td><td style="text-align:left">${escH(d.customer)}</td><td>${fmt(netOf(d))}</td><td>${d.items.length}</td><td style="text-align:center">${foto}</td><td><button class="btn" style="padding:6px 10px" data-open="${escH(id)}">Buka</button> <button class="btn danger" style="padding:6px 10px" data-del="${escH(id)}">Hapus</button></td></tr>`}).join('')
-    :'<tr><td colspan="7" style="text-align:center;color:#64748b">Belum ada invoice tersimpan.</td></tr>';
+    return `<tr><td style="text-align:center"><input type="checkbox" class="selRow" data-sel="${escH(id)}"${selSaved.has(id)?' checked':''}></td><td style="text-align:left">${escH(id)}${window.cloudOn?(window.cloudIds&&window.cloudIds.has(id)?' <span title="Sudah tersimpan di cloud" style="color:#16a34a">☁✓</span>':' <span title="Belum terunggah ke cloud" style="color:#b42318">☁✗</span>'):''}</td><td style="text-align:left">${escH(d.date)}</td><td style="text-align:left">${escH(d.customer)}</td><td>${fmt(netOf(d))}</td><td>${d.items.length}</td><td style="text-align:center">${foto}</td><td><button class="btn" style="padding:6px 10px" data-open="${escH(id)}">Buka</button> <button class="btn danger" style="padding:6px 10px" data-del="${escH(id)}">Hapus</button></td></tr>`}).join('')
+    :'<tr><td colspan="8" style="text-align:center;color:#64748b">Belum ada invoice tersimpan.</td></tr>';
+  selSaved.forEach(i=>{if(!st[i])selSaved.delete(i)});updSel();
 }
 async function openPhoto(id){
   let f=await phGet(id);if(!f){photoTarget=id;document.getElementById('photoFile').click();return}
@@ -480,7 +489,7 @@ const kget=()=>new Set(jget('rumusku_known',[])),kset=s=>localStorage.setItem('r
 function cloudUI(msg){
   const n=dcount();window.cloudOn=!!sbUser;
   $('cloudMsg').textContent=msg||(sbUser?(n?'⚠ '+n+' perubahan belum terunggah ke cloud — tekan "Sinkronkan ke Cloud".':'☁ Tersinkron ke cloud'):(sb?'☁ Belum masuk. Data hanya di perangkat ini.':'☁ Mode offline (cloud tidak tersedia). Data hanya di perangkat ini.'));
-  $('cloudLogin').style.display=(!sbUser&&sb)?'':'none';$('cloudLogout').style.display=sbUser?'':'none';$('cloudSync').style.display=sbUser?'':'none';
+  $('cloudLogin').style.display=(!sbUser&&sb)?'':'none';$('cloudSync').style.display=sbUser?'':'none';
   const bd=$('cloudBadge');if(bd){if(sbUser){bd.textContent=n?'☁ !':'☁ ✓';bd.style.color=n?'#b42318':'#16a34a'}else{bd.textContent=sb?'☁ Masuk':'☁ offline';bd.style.color=''}}
 }
 function cloudErr(where,e){lastErr=where+': '+((e&&e.message)||e);console.error(where,e);cloudUI('⚠ Gagal sinkron ('+lastErr+') — data tetap aman di perangkat ini.')}
@@ -596,7 +605,7 @@ async function doLogout(){
   await sb.auth.signOut();saveStore({});for(const k of Object.keys(await phAll()))await phDel(k);
   localStorage.removeItem('rumusku_dirty');localStorage.removeItem('rumusku_known');window.cloudIds=new Set();renderSaved();cloudUI();
 }
-$('lgSkip').onclick=closeLogin;$('cloudLogin').onclick=openLogin;$('cloudLogout').onclick=doLogout;$('cloudSync').onclick=cloudSyncNow;
+$('lgSkip').onclick=closeLogin;$('cloudLogin').onclick=openLogin;$('cloudSync').onclick=cloudSyncNow;
 (function init(){
   if(!window.supabase){cloudUI();return}
   try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){cloudUI();return}
